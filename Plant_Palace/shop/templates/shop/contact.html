@@ -1,0 +1,105 @@
+{% extends 'shop/base.html' %}
+{% block title %}Contact Us — Plant Palace{% endblock %}
+
+{% block content %}
+<div class="pp-breadcrumb">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item active">Contact</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<!-- Page Header -->
+<div style="background:var(--pp-parchment);padding:3rem 0;border-bottom:1px solid rgba(46,107,69,.1);">
+  <div class="container text-center">
+    <div class="section-eyebrow justify-content-center mb-2">We're Here</div>
+    <h1 class="section-title">Get In Touch</h1>
+    <p class="section-subtitle">Have a question? We'd love to hear from you.</p>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row g-4">
+    <!-- Info -->
+    <div class="col-lg-4">
+      <div class="contact-info-card">
+        <h4 style="font-family:var(--font-display);font-size:1.6rem;color:#fff;margin-bottom:1.75rem;font-weight:600;">Reach Us Anytime</h4>
+        <div class="d-flex gap-3 mb-4">
+          <div class="contact-info-icon flex-shrink-0"><i class="bi bi-geo-alt"></i></div>
+          <div>
+            <h6 style="color:#fff;font-weight:600;margin-bottom:.3rem;font-size:.9rem;">Address</h6>
+            <p style="margin:0;font-size:.875rem;opacity:.78;">123 Green Park, Solapur, Maharashtra 413001</p>
+          </div>
+        </div>
+        <div class="d-flex gap-3 mb-4">
+          <div class="contact-info-icon flex-shrink-0"><i class="bi bi-telephone"></i></div>
+          <div>
+            <h6 style="color:#fff;font-weight:600;margin-bottom:.3rem;font-size:.9rem;">Phone</h6>
+            <p style="margin:0;font-size:.875rem;opacity:.78;">+91 98765 43210</p>
+          </div>
+        </div>
+        <div class="d-flex gap-3 mb-4">
+          <div class="contact-info-icon flex-shrink-0"><i class="bi bi-envelope"></i></div>
+          <div>
+            <h6 style="color:#fff;font-weight:600;margin-bottom:.3rem;font-size:.9rem;">Email</h6>
+            <p style="margin:0;font-size:.875rem;opacity:.78;">hello@plantpalace.in</p>
+          </div>
+        </div>
+        <div class="d-flex gap-3">
+          <div class="contact-info-icon flex-shrink-0"><i class="bi bi-clock"></i></div>
+          <div>
+            <h6 style="color:#fff;font-weight:600;margin-bottom:.3rem;font-size:.9rem;">Hours</h6>
+            <p style="margin:0;font-size:.875rem;opacity:.78;">Mon–Sat: 9AM–7PM<br/>Sunday: Closed</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div class="col-lg-8">
+      <div class="checkout-card">
+        <h4 style="font-family:var(--font-display);font-size:1.6rem;color:var(--pp-forest);margin-bottom:1.5rem;font-weight:600;">Send Us a Message</h4>
+        <form method="post" action="{% url 'contact' %}">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-medium" style="font-size:.875rem;">Your Name *</label>
+              <input type="text" class="form-control" name="name" required
+                     value="{{ form_data.name|default:'' }}" placeholder="Full name" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-medium" style="font-size:.875rem;">Email Address *</label>
+              <input type="email" class="form-control" name="email" required
+                     value="{{ form_data.email|default:'' }}" placeholder="your@email.com" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-medium" style="font-size:.875rem;">Phone</label>
+              <input type="tel" class="form-control" name="phone"
+                     value="{{ form_data.phone|default:'' }}" placeholder="+91 XXXXXXXXXX" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-medium" style="font-size:.875rem;">Subject</label>
+              <input type="text" class="form-control" name="subject"
+                     value="{{ form_data.subject|default:'' }}" placeholder="Order issue, Product query, etc." />
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-medium" style="font-size:.875rem;">Message *</label>
+              <textarea class="form-control" name="message" rows="5" required
+                        placeholder="Tell us how we can help you…">{{ form_data.message|default:'' }}</textarea>
+            </div>
+            <div class="col-12">
+              <button type="submit" class="btn btn-pp-primary px-5 py-2">
+                <i class="bi bi-send me-2"></i>Send Message
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

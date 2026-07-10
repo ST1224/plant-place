@@ -1,0 +1,121 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Messages{% endblock %}
+{% block page_title %}Contact Messages{% endblock %}
+{% block breadcrumb %}<span>Messages</span>{% endblock %}
+
+{% block content %}
+
+{% if unread %}
+<div class="pp-alert pp-alert-warning" style="margin-bottom:1.25rem;">
+  <i class="bi bi-envelope-exclamation-fill"></i>
+  You have <strong>{{ unread }}</strong> unread message{{ unread|pluralize }} awaiting your attention.
+  <button class="pp-alert-close" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button>
+</div>
+{% endif %}
+
+<div class="pp-card">
+  <div style="overflow-x:auto;">
+    <table class="pp-table">
+      <thead>
+        <tr>
+          <th>Sender</th>
+          <th>Contact</th>
+          <th>Subject</th>
+          <th>Message Preview</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for contact in page_obj %}
+        <tr style="{% if not contact.is_read %}background:rgba(201,169,78,0.03);{% endif %}">
+          <td>
+            <div style="display:flex;align-items:center;gap:.65rem;">
+              <div style="
+                width:34px;height:34px;border-radius:10px;flex-shrink:0;
+                background:{% if not contact.is_read %}var(--gold-dim){% else %}var(--navy-3){% endif %};
+                border:1px solid {% if not contact.is_read %}rgba(201,169,78,.3){% else %}var(--border){% endif %};
+                display:flex;align-items:center;justify-content:center;
+                font-family:'Playfair Display',serif;font-weight:700;font-size:.85rem;
+                color:{% if not contact.is_read %}var(--gold){% else %}var(--text-3){% endif %};">
+                {{ contact.name|first|upper }}
+              </div>
+              <div>
+                <div style="font-weight:{% if not contact.is_read %}600{% else %}400{% endif %};font-size:.875rem;color:var(--text-1);">
+                  {{ contact.name }}
+                </div>
+                {% if not contact.is_read %}
+                <div style="font-size:.68rem;color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:.08em;">New</div>
+                {% endif %}
+              </div>
+            </div>
+          </td>
+          <td>
+            <div style="font-size:.8rem;color:var(--text-2);">{{ contact.email }}</div>
+            {% if contact.phone %}
+            <div style="font-size:.74rem;color:var(--text-3);"><i class="bi bi-telephone" style="margin-right:.25rem;"></i>{{ contact.phone }}</div>
+            {% endif %}
+          </td>
+          <td>
+            <span style="font-size:.83rem;color:var(--text-1);">{{ contact.subject|default:"—"|truncatechars:38 }}</span>
+          </td>
+          <td>
+            <span style="font-size:.8rem;color:var(--text-3);">{{ contact.message|truncatechars:65 }}</span>
+          </td>
+          <td>
+            <div style="font-size:.8rem;color:var(--text-2);">{{ contact.timestamp|date:"d M Y" }}</div>
+            <div style="font-size:.74rem;color:var(--text-3);">{{ contact.timestamp|date:"h:i A" }}</div>
+          </td>
+          <td>
+            <span class="badge-pp {% if contact.is_read %}b-read{% else %}b-unread{% endif %}">
+              {% if contact.is_read %}Read{% else %}Unread{% endif %}
+            </span>
+          </td>
+          <td>
+            {% if not contact.is_read %}
+            <form method="post" action="{% url 'dashboard_contact_read' contact.id %}">
+              {% csrf_token %}
+              <button type="submit" class="act-btn act-deliver" style="white-space:nowrap;">
+                <i class="bi bi-check2"></i> Mark Read
+              </button>
+            </form>
+            {% else %}
+            <span style="color:var(--text-3);font-size:.8rem;">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--text-3);">
+          <i class="bi bi-chat-square-dots" style="font-size:2rem;display:block;margin-bottom:.75rem;opacity:.4;"></i>
+          <span style="font-size:.9rem;">No messages yet.</span>
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if page_obj.has_other_pages %}
+  <div class="pp-pagination">
+    {% if page_obj.has_previous %}
+    <a class="pp-page" href="?page={{ page_obj.previous_page_number }}">
+      <i class="bi bi-chevron-left"></i>
+    </a>
+    {% endif %}
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+      <span class="pp-page active">{{ num }}</span>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+      <a class="pp-page" href="?page={{ num }}">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+    <a class="pp-page" href="?page={{ page_obj.next_page_number }}">
+      <i class="bi bi-chevron-right"></i>
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

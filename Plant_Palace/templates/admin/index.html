@@ -1,0 +1,364 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static log %}
+
+{% block title %}Dashboard | PlantPalace Admin{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+/* ── Welcome Banner ── */
+.pp-banner {
+  position: relative;
+  background: var(--ch-1);
+  border: 1px solid var(--bd);
+  border-top: 2px solid var(--gold-dk);
+  border-radius: var(--r);
+  padding: 1.6rem 2rem;
+  margin-bottom: 1.4rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  gap: 1rem;
+  overflow: hidden;
+}
+.pp-banner:before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: -webkit-radial-gradient(95% 50%, ellipse cover, rgba(201,168,76,.06) 0%, transparent 60%);
+  background: radial-gradient(ellipse 55% 90% at 95% 50%, rgba(201,168,76,.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+/* Ruled line texture */
+.pp-banner:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255,255,255,.012) 0px,
+    rgba(255,255,255,.012) 1px,
+    transparent 1px,
+    transparent 28px
+  );
+  pointer-events: none;
+}
+.pp-banner-inner { position: relative; z-index: 1; }
+.pp-banner-eyebrow {
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 6px;
+  background: var(--gold-glow);
+  border: 1px solid var(--bd-g);
+  color: var(--gold);
+  font-size: .62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .13em;
+  padding: 3px 10px;
+  border-radius: 3px;
+  margin-bottom: 10px;
+  font-family: 'Outfit', sans-serif;
+}
+.pp-banner-eyebrow:before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  display: inline-block;
+}
+.pp-banner h2 {
+  font-family: 'DM Serif Display', Georgia, serif !important;
+  font-size: 1.7rem;
+  font-weight: 400;
+  color: var(--tx-1);
+  margin: 0 0 4px;
+  letter-spacing: -.01em;
+}
+.pp-banner p {
+  margin: 0;
+  color: var(--tx-2);
+  font-size: .85rem;
+}
+.pp-banner-cta {
+  position: relative;
+  z-index: 1;
+  background: -webkit-linear-gradient(315deg, var(--gold-dk), var(--gold));
+  background: linear-gradient(135deg, var(--gold-dk), var(--gold));
+  color: #0a0c0e !important;
+  padding: 9px 20px;
+  border-radius: var(--r);
+  font-size: .83rem;
+  font-weight: 700;
+  text-decoration: none !important;
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 6px;
+  -webkit-transition: opacity .15s, -webkit-transform .12s;
+  transition: opacity .15s, transform .12s;
+  white-space: nowrap;
+  font-family: 'Outfit', sans-serif;
+  box-shadow: 0 2px 16px rgba(201,168,76,.22);
+}
+.pp-banner-cta:hover {
+  opacity: .9;
+  -webkit-transform: translateY(-1px);
+  transform: translateY(-1px);
+  color: #0a0c0e !important;
+}
+
+/* ── Quick cards ── */
+.pp-quick-grid {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: (minmax(175px, 1fr))[auto-fill];
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: 10px;
+  margin-bottom: 1.4rem;
+}
+.pp-quick-card {
+  background: var(--ch-1);
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
+  padding: 1rem 1.1rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none !important;
+  color: var(--tx-1) !important;
+  -webkit-transition: border-color .15s, -webkit-transform .15s;
+  transition: border-color .15s, transform .15s;
+  position: relative;
+  overflow: hidden;
+}
+/* Bottom accent line */
+.pp-quick-card:before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--card-ac, var(--gold-dk));
+  -webkit-transform: scaleX(0);
+  transform: scaleX(0);
+  -webkit-transform-origin: left;
+  transform-origin: left;
+  -webkit-transition: -webkit-transform .22s;
+  transition: transform .22s;
+}
+.pp-quick-card:hover {
+  border-color: var(--bd-g);
+  -webkit-transform: translateY(-2px);
+  transform: translateY(-2px);
+  color: var(--tx-1) !important;
+}
+.pp-quick-card:hover:before { -webkit-transform: scaleX(1); transform: scaleX(1); }
+.pp-qc-icon {
+  width: 40px; height: 40px;
+  border-radius: 5px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+  border: 1px solid var(--bd);
+}
+.pp-qc-title {
+  font-weight: 600;
+  font-size: .83rem;
+  line-height: 1.25;
+  color: var(--tx-1);
+  font-family: 'Outfit', sans-serif;
+}
+.pp-qc-sub {
+  font-size: .72rem;
+  color: var(--tx-3);
+  margin-top: 2px;
+}
+
+/* ── App list override ── */
+#content-main.app-list {
+  display: -ms-grid !important;
+  display: grid !important;
+  -ms-grid-columns: (minmax(285px, 1fr))[auto-fill] !important;
+  grid-template-columns: repeat(auto-fill, minmax(285px, 1fr)) !important;
+  gap: 10px !important;
+}
+#content-main.app-list .module {
+  margin-bottom: 0 !important;
+  border-top: 2px solid var(--gold-dk) !important;
+}
+#recent-actions-module ul.actionlist {
+  list-style: none !important;
+  padding: 3px 0 8px !important;
+  margin: 0 !important;
+}
+#recent-actions-module ul.actionlist li {
+  display: -webkit-box !important;
+  display: -ms-flexbox !important;
+  display: flex !important;
+  -webkit-box-align: flex-start !important;
+  -ms-flex-align: flex-start !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+  padding: 7px 16px !important;
+  border-bottom: 1px solid var(--bd) !important;
+  font-size: .81rem !important;
+  color: var(--tx-1) !important;
+}
+#recent-actions-module ul.actionlist li:last-child { border-bottom: none !important; }
+.act-badge {
+  width: 18px; height: 18px;
+  border-radius: 4px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  justify-content: center;
+  font-size: .7rem;
+  font-weight: 800;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+</style>
+{% endblock %}
+
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block content %}
+
+<!-- Welcome Banner -->
+<div class="pp-banner">
+  <div class="pp-banner-inner">
+    <div class="pp-banner-eyebrow">Live Dashboard</div>
+    <h2>Welcome back, {{ user.first_name|default:user.username }}</h2>
+    <p>Manage your Plant Palace store — products, orders, customers &amp; more.</p>
+  </div>
+  <a href="{% url 'dashboard_index' %}" class="pp-banner-cta">
+    Open Full Dashboard &rarr;
+  </a>
+</div>
+
+<!-- Quick Access Cards -->
+<div class="pp-quick-grid">
+
+  <a href="/admin/shop/order/?status__exact=shipped" class="pp-quick-card" style="--card-ac:#3b82f6;">
+    <div class="pp-qc-icon" style="background:rgba(59,130,246,.1);color:#60a5fa;">&#128666;</div>
+    <div>
+      <div class="pp-qc-title">Shipped Orders</div>
+      <div class="pp-qc-sub">Delivery pending</div>
+    </div>
+  </a>
+
+  <a href="{% url 'dashboard_orders' %}?status=pending" class="pp-quick-card" style="--card-ac:#f59e0b;">
+    <div class="pp-qc-icon" style="background:rgba(245,158,11,.1);color:#fbbf24;">&#9203;</div>
+    <div>
+      <div class="pp-qc-title">Pending Orders</div>
+      <div class="pp-qc-sub">Awaiting action</div>
+    </div>
+  </a>
+
+  <a href="/admin/shop/product/" class="pp-quick-card" style="--card-ac:#c9a84c;">
+    <div class="pp-qc-icon" style="background:rgba(201,168,76,.1);color:#c9a84c;">&#127807;</div>
+    <div>
+      <div class="pp-qc-title">Products</div>
+      <div class="pp-qc-sub">Manage catalogue</div>
+    </div>
+  </a>
+
+  <a href="/admin/shop/contact/?is_read__exact=0" class="pp-quick-card" style="--card-ac:#f97316;">
+    <div class="pp-qc-icon" style="background:rgba(249,115,22,.1);color:#fb923c;">&#9993;</div>
+    <div>
+      <div class="pp-qc-title">Unread Messages</div>
+      <div class="pp-qc-sub">Customer enquiries</div>
+    </div>
+  </a>
+
+  <a href="/admin/shop/category/" class="pp-quick-card" style="--card-ac:#a855f7;">
+    <div class="pp-qc-icon" style="background:rgba(168,85,247,.1);color:#c084fc;">&#128193;</div>
+    <div>
+      <div class="pp-qc-title">Categories</div>
+      <div class="pp-qc-sub">Product taxonomy</div>
+    </div>
+  </a>
+
+  <a href="/admin/auth/user/" class="pp-quick-card" style="--card-ac:#ec4899;">
+    <div class="pp-qc-icon" style="background:rgba(236,72,153,.1);color:#f472b6;">&#128101;</div>
+    <div>
+      <div class="pp-qc-title">Users</div>
+      <div class="pp-qc-sub">Customers &amp; staff</div>
+    </div>
+  </a>
+
+</div>
+
+<!-- Django app list -->
+<div id="content-main" class="app-list">
+  {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+</div>
+
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related">
+  <div class="module" id="recent-actions-module">
+    <h2>{% trans 'Recent actions' %}</h2>
+    <h3>{% trans 'My actions' %}</h3>
+    {% get_admin_log 10 as admin_log for_user user %}
+    {% if not admin_log %}
+    <p style="padding:8px 16px;color:var(--tx-3);font-size:.81rem;">No recent actions.</p>
+    {% else %}
+    <ul class="actionlist">
+      {% for entry in admin_log %}
+      <li>
+        <span class="act-badge" style="
+          {% if entry.is_addition %}background:rgba(74,222,128,.13);color:#4ade80;
+          {% elif entry.is_change %}background:rgba(96,165,250,.13);color:#60a5fa;
+          {% else %}background:rgba(248,113,113,.13);color:#f87171;{% endif %}">
+          {% if entry.is_addition %}+{% elif entry.is_change %}&sim;{% else %}&minus;{% endif %}
+        </span>
+        <div>
+          {% if entry.is_deletion or not entry.get_admin_url %}
+            <span style="color:var(--tx-2);">{{ entry.object_repr }}</span>
+          {% else %}
+            <a href="{{ entry.get_admin_url }}" style="color:var(--gold);font-weight:500;text-decoration:none;">{{ entry.object_repr }}</a>
+          {% endif %}
+          <br>
+          <span style="color:var(--tx-3);font-size:.72rem;">{{ entry.content_type.name|capfirst }}</span>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

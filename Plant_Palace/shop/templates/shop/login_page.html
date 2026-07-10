@@ -1,0 +1,72 @@
+{% extends 'shop/base.html' %}
+{% block title %}Login — Plant Palace{% endblock %}
+
+{% block content %}
+<div class="pp-breadcrumb">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item active">Login</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-5">
+      <div class="checkout-card">
+        <div class="text-center mb-4">
+          <span style="font-size:3rem;">🌿</span>
+          <h3 class="fw-bold mt-2">Welcome Back</h3>
+          <p class="text-muted small">Sign in to your Plant Palace account</p>
+        </div>
+
+        <form method="post" action="{% url 'login' %}">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ next }}" />
+
+          <div class="mb-3">
+            <label class="form-label fw-medium">Username</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light"><i class="bi bi-person text-success"></i></span>
+              <input type="text" class="form-control" name="username" placeholder="Enter your username" required autofocus />
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-medium">Password</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light"><i class="bi bi-lock text-success"></i></span>
+              <input type="password" class="form-control" name="password" id="loginPwd" placeholder="Enter your password" required />
+              <button type="button" class="btn btn-outline-secondary" onclick="togglePwd('loginPwd')">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="rememberMe" />
+              <label class="form-check-label small" for="rememberMe">Remember me</label>
+            </div>
+            <a href="{% url 'password_reset' %}" class="text-success small text-decoration-none">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn btn-success w-100 py-2 fw-semibold">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Login
+          </button>
+        </form>
+
+        <hr class="my-4" />
+        <p class="text-center text-muted small mb-0">
+          Don't have an account?
+          <a href="#" class="text-success fw-medium text-decoration-none"
+             data-bs-toggle="modal" data-bs-target="#signupModal">Create one free</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

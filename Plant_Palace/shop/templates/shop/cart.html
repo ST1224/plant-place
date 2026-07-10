@@ -1,0 +1,153 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% block title %}My Cart — Plant Palace{% endblock %}
+
+{% block content %}
+<div class="pp-breadcrumb">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item active">My Cart</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="d-flex align-items-center gap-3 mb-5">
+    <div style="width:48px;height:48px;background:var(--pp-forest);color:var(--pp-mint);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">
+      <i class="bi bi-bag"></i>
+    </div>
+    <div>
+      <h2 class="fw-bold mb-0" style="font-family:var(--font-display);font-size:2rem;color:var(--pp-forest);">My Cart</h2>
+      {% if items %}<p class="text-muted mb-0 small">{{ items|length }} item{% if items|length != 1 %}s{% endif %} in your cart</p>{% endif %}
+    </div>
+  </div>
+
+  {% if items %}
+  <div class="row g-4 align-items-start">
+    <!-- Cart Items -->
+    <div class="col-lg-8">
+      <div class="checkout-card p-0" style="overflow:hidden;">
+        <div class="table-responsive">
+          <table class="table cart-table align-middle mb-0" style="font-size:.9rem;">
+            <thead>
+              <tr>
+                <th style="width:80px;padding:1rem 1.25rem;">Image</th>
+                <th style="padding:1rem 1.25rem;">Product</th>
+                <th class="text-center" style="padding:1rem 1.25rem;">Price</th>
+                <th class="text-center" style="width:160px;padding:1rem 1.25rem;">Quantity</th>
+                <th class="text-end" style="padding:1rem 1.25rem;">Subtotal</th>
+                <th style="padding:1rem 1.25rem;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in items %}
+              <tr>
+                <td style="padding:.9rem 1.25rem;">
+                  <a href="{% url 'product_detail' item.product.id %}">
+                    {% if item.product.image %}
+                      <img src="{{ item.product.image.url }}" class="cart-product-img" alt="{{ item.product.product_name }}" />
+                    {% else %}
+                      <div class="cart-product-img d-flex align-items-center justify-content-center" style="background:var(--pp-light);font-size:1.8rem;border-radius:var(--radius-sm);">🌱</div>
+                    {% endif %}
+                  </a>
+                </td>
+                <td style="padding:.9rem 1.25rem;">
+                  <a href="{% url 'product_detail' item.product.id %}" class="fw-semibold text-decoration-none" style="color:var(--pp-dark);">{{ item.product.product_name }}</a>
+                  {% if item.product.category %}
+                  <br/><span class="badge-cat mt-1" style="font-size:.68rem;">{{ item.product.category.name }}</span>
+                  {% endif %}
+                </td>
+                <td class="text-center" style="padding:.9rem 1.25rem;">
+                  <span style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--pp-forest);">₹{{ item.product.effective_price }}</span>
+                </td>
+                <td style="padding:.9rem 1.25rem;">
+                  <form method="post" action="{% url 'cart_update' item.id %}" class="d-flex justify-content-center">
+                    {% csrf_token %}
+                    <div class="qty-group input-group input-group-sm">
+                      <button type="button" class="btn btn-outline-secondary qty-decrease" style="border-color:rgba(46,107,69,.2);">−</button>
+                      <input type="number" name="quantity" class="form-control text-center qty-value qty-input"
+                             value="{{ item.quantity }}" min="0" max="{{ item.product.stock }}" style="max-width:48px;border-color:rgba(46,107,69,.2);" />
+                      <button type="button" class="btn btn-outline-secondary qty-increase" style="border-color:rgba(46,107,69,.2);">+</button>
+                    </div>
+                    <button type="submit" class="btn btn-sm ms-2" style="background:var(--pp-light);color:var(--pp-green);border:1px solid rgba(46,107,69,.2);border-radius:var(--radius-sm);" title="Update">
+                      <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                  </form>
+                </td>
+                <td class="text-end fw-bold" style="padding:.9rem 1.25rem;font-family:var(--font-display);font-size:1.1rem;color:var(--pp-forest);">₹{{ item.subtotal }}</td>
+                <td class="text-end" style="padding:.9rem 1.25rem;">
+                  <form method="post" action="{% url 'cart_remove' item.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm" style="color:#ef4444;padding:.3rem .5rem;" title="Remove">
+                      <i class="bi bi-trash3"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <a href="{% url 'product_list' %}" class="btn" style="border:1.5px solid rgba(46,107,69,.2);color:var(--pp-sage);border-radius:50px;font-size:.875rem;">
+          <i class="bi bi-arrow-left me-1"></i>Continue Shopping
+        </a>
+      </div>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="col-lg-4">
+      <div class="order-summary-card">
+        <h5 class="fw-bold mb-4" style="font-family:var(--font-display);font-size:1.35rem;color:#fff;"><i class="bi bi-receipt me-2" style="color:var(--pp-mint);"></i>Order Summary</h5>
+
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Subtotal ({{ cart.total_items }} items)</span>
+          <span class="fw-semibold" style="color:#fff;">₹{{ cart.total_price }}</span>
+        </div>
+        <div class="d-flex justify-content-between mb-3">
+          <span class="text-muted">Delivery</span>
+          <span class="fw-semibold" style="color:var(--pp-mint);">
+            {% if cart.total_price >= 499 %}FREE{% else %}₹49{% endif %}
+          </span>
+        </div>
+        <div style="border-top:1px solid rgba(255,255,255,.15);padding-top:1rem;margin-bottom:1.5rem;">
+          <div class="d-flex justify-content-between">
+            <span class="fw-bold" style="color:#fff;font-size:1.1rem;">Total</span>
+            <span class="fw-bold" style="color:var(--pp-mint);font-family:var(--font-display);font-size:1.4rem;">₹{{ grand_total }}</span>
+          </div>
+        </div>
+
+        {% if cart.total_price < 499 %}
+        <div class="alert alert-info py-2 small mb-3" style="background:rgba(168,213,181,.15);border:1px solid rgba(168,213,181,.3);color:var(--pp-mint);">
+          <i class="bi bi-info-circle me-1"></i>
+          Add ₹{{ delivery_gap }} more for free delivery!
+        </div>
+        {% endif %}
+
+        <a href="{% url 'checkout' %}" class="btn w-100 py-2 fw-semibold" style="background:#fff;color:var(--pp-forest);border-radius:var(--radius-sm);font-size:.95rem;">
+          <i class="bi bi-lock me-2"></i>Proceed to Checkout
+        </a>
+        <div class="text-center mt-3">
+          <small style="color:rgba(255,255,255,.5);font-size:.78rem;"><i class="bi bi-shield-lock me-1"></i>Secure &amp; encrypted checkout</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">🛒</div>
+    <h3 style="font-family:var(--font-display);color:var(--pp-forest);">Your cart is empty</h3>
+    <p style="color:var(--pp-mid);">Looks like you haven't added any plants yet.</p>
+    <a href="{% url 'product_list' %}" class="btn btn-pp-primary px-5" style="border-radius:50px;">
+      <i class="bi bi-shop me-2"></i>Start Shopping
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends 'shop/base.html' %}
+{% block title %}Order Tracker — Plant Palace{% endblock %}
+
+{% block content %}
+<div class="pp-breadcrumb">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item active">Track Order</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div style="background:linear-gradient(135deg, var(--pp-forest), var(--pp-green));padding:3rem 0;text-align:center;margin-bottom:0;">
+  <div style="width:64px;height:64px;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 1rem;">
+    <i class="bi bi-truck" style="color:var(--pp-mint);"></i>
+  </div>
+  <h2 style="font-family:var(--font-display);color:#fff;font-size:2.2rem;font-weight:700;margin-bottom:.5rem;">Track Your Order</h2>
+  <p style="color:rgba(255,255,255,.75);margin:0;font-size:.97rem;">Enter your Order ID and email to see real-time status</p>
+</div>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      <div class="checkout-card">
+        <form method="post" action="{% url 'tracker' %}">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-medium" style="font-size:.875rem;">Order ID *</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-hash" style="color:var(--pp-sage);"></i></span>
+                <input type="number" class="form-control" name="order_id" required placeholder="e.g. 42" />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-medium" style="font-size:.875rem;">Email Address *</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-envelope" style="color:var(--pp-sage);"></i></span>
+                <input type="email" class="form-control" name="email" required placeholder="your@email.com"
+                       value="{% if user.is_authenticated %}{{ user.email }}{% endif %}" />
+              </div>
+            </div>
+            <div class="col-12">
+              <button type="submit" class="btn btn-pp-primary w-100 py-2">
+                <i class="bi bi-search me-2"></i>Track Order
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      {% if found_order %}
+      <div class="checkout-card mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h5 class="fw-bold mb-1" style="font-family:var(--font-display);color:var(--pp-forest);">Order #{{ found_order.id }}</h5>
+            <small style="color:var(--pp-mid);">Placed on {{ found_order.created_at|date:"d M Y" }}</small>
+          </div>
+          <span class="badge-{{ found_order.status }}" style="font-size:.85rem;padding:.4rem 1rem;">{{ found_order.get_status_display }}</span>
+        </div>
+
+        <h6 class="fw-bold mb-2" style="font-size:.875rem;color:var(--pp-forest);">Items</h6>
+        {% for item in order_items %}
+        <div class="d-flex justify-content-between py-1" style="border-bottom:1px solid rgba(46,107,69,.07);font-size:.875rem;">
+          <span>{{ item.product_name }} × {{ item.quantity }}</span>
+          <span style="color:var(--pp-mid);">₹{{ item.price }}</span>
+        </div>
+        {% endfor %}
+        <div class="d-flex justify-content-between mt-2 fw-bold">
+          <span style="color:var(--pp-dark);">Total</span>
+          <span style="font-family:var(--font-display);color:var(--pp-forest);font-size:1.2rem;">₹{{ found_order.total_amount }}</span>
+        </div>
+
+        {% if updates %}
+        <h6 class="fw-bold mt-4 mb-3" style="font-size:.875rem;color:var(--pp-forest);">Order Updates</h6>
+        <div class="timeline">
+          {% for update in updates %}
+          <div class="timeline-item">
+            <p class="mb-0 fw-medium" style="font-size:.875rem;">{{ update.message }}</p>
+            <small style="color:var(--pp-mid);">{{ update.timestamp|date:"d M Y, h:i A" }}</small>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

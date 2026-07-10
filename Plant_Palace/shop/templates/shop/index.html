@@ -1,0 +1,225 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}Plant Palace — Your Green World{% endblock %}
+
+{% block content %}
+
+<!-- ===== HERO ===== -->
+<section class="hero-section" style="padding:5rem 0 4rem;">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6 animate-up">
+        <div class="hero-badge mb-4">
+          <i class="bi bi-tree-fill"></i> 500+ Plant Varieties Available
+        </div>
+        <h1 class="hero-title mb-4">
+          Bring Nature<br /><em style="color:var(--pp-mint);font-style:italic;">Into</em> Your<br />Living Space
+        </h1>
+        <p class="hero-subtitle mb-5">
+          Discover our hand-picked collection of indoor plants, flowering varieties,
+          fruit trees and medicinal herbs. Expert care guides included with every order.
+        </p>
+        <div class="d-flex flex-wrap gap-3 mb-5">
+          <a href="{% url 'product_list' %}" class="btn btn-light btn-lg px-5 fw-semibold" style="border-radius:50px;color:var(--pp-forest);">
+            <i class="bi bi-shop me-2"></i>Shop Now
+          </a>
+          <a href="{% url 'about' %}" class="btn btn-outline-light btn-lg px-5" style="border-radius:50px;border-color:rgba(255,255,255,.4);">
+            Learn More
+          </a>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="feature-chip"><i class="bi bi-truck" style="color:var(--pp-mint);"></i> Free Delivery ₹499+</span>
+          <span class="feature-chip"><i class="bi bi-shield-check" style="color:var(--pp-mint);"></i> Plant Guarantee</span>
+          <span class="feature-chip"><i class="bi bi-headset" style="color:var(--pp-mint);"></i> Expert Support</span>
+        </div>
+      </div>
+      <div class="col-lg-6 d-none d-lg-block text-center" style="position:relative;">
+        <!-- Decorative floating circles -->
+        <div style="position:absolute;top:10%;right:5%;width:80px;height:80px;background:rgba(168,213,181,.2);border-radius:50%;animation:float 4s ease-in-out infinite;"></div>
+        <div style="position:absolute;bottom:15%;left:5%;width:50px;height:50px;background:rgba(196,151,58,.2);border-radius:50%;animation:float 5s ease-in-out 1s infinite;"></div>
+        <div style="font-size:13rem;line-height:1;filter:drop-shadow(0 20px 40px rgba(0,0,0,.2));animation:float 6s ease-in-out infinite;">🌿</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STATS ===== -->
+<section class="stats-section py-4">
+  <div class="container">
+    <div class="row g-0 text-center">
+      <div class="col-6 col-md-3">
+        <div class="stat-item py-3 px-2">
+          <div class="stat-num">500+</div>
+          <div class="stat-label">Plant Varieties</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-item py-3 px-2">
+          <div class="stat-num">10K+</div>
+          <div class="stat-label">Happy Customers</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-item py-3 px-2">
+          <div class="stat-num">4.9★</div>
+          <div class="stat-label">Average Rating</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-item py-3 px-2">
+          <div class="stat-num">48h</div>
+          <div class="stat-label">Fast Delivery</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEATURED PRODUCTS ===== -->
+{% if category_products %}
+{% for cat_data in category_products %}
+<section class="py-6" style="padding:4rem 0;{% if forloop.even %}background:#fff;{% else %}background:var(--pp-cream);{% endif %}">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-5">
+      <div>
+        <div class="section-eyebrow mb-2">Our Collection</div>
+        <h2 class="section-title mb-1">{{ cat_data.category.name|default:"Featured Plants" }}</h2>
+        <p class="section-subtitle mb-0">{{ cat_data.category.description|default:"Carefully curated selection"|truncatechars:80 }}</p>
+      </div>
+      <a href="{% url 'product_list' %}{% if cat_data.category %}?category={{ cat_data.category.slug }}{% endif %}"
+         class="btn btn-outline-success btn-sm d-none d-md-inline-flex align-items-center gap-2" style="border-radius:50px;border-color:var(--pp-green);color:var(--pp-green);">
+        View All <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+
+    <div class="row g-4">
+      {% for product in cat_data.products %}
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="product-card card border-0">
+          <button class="wishlist-btn" title="Wishlist"><i class="bi bi-heart"></i></button>
+          <a href="{% url 'product_detail' product.id %}">
+            <div class="card-img-wrap">
+              {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.product_name }}" loading="lazy" />
+              {% else %}
+                <div class="w-100 h-100 d-flex align-items-center justify-content-center" style="font-size:4rem;background:var(--pp-light);">🌱</div>
+              {% endif %}
+            </div>
+          </a>
+          <div class="card-body p-3">
+            {% if product.category %}
+              <span class="badge-cat">{{ product.category.name }}</span>
+            {% endif %}
+            <h6 class="card-title mt-2 mb-1 fw-semibold" style="font-size:.9rem;">
+              <a href="{% url 'product_detail' product.id %}" class="text-decoration-none" style="color:var(--pp-dark);">{{ product.product_name }}</a>
+            </h6>
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <span class="price">₹{{ product.effective_price }}</span>
+              {% if product.discount_price %}
+                <span class="price-old">₹{{ product.price }}</span>
+              {% endif %}
+            </div>
+            {% if not product.is_in_stock %}
+              <span class="badge bg-secondary" style="border-radius:50px;font-weight:500;">Out of Stock</span>
+            {% else %}
+              <div class="card-actions">
+                <button class="btn btn-add-cart btn-sm btn-add-cart" data-product-id="{{ product.id }}" data-qty="1">
+                  <i class="bi bi-bag-plus me-1"></i>Add
+                </button>
+                <a href="{% url 'product_detail' product.id %}" class="btn btn-sm" style="border:1.5px solid rgba(46,107,69,.2);color:var(--pp-sage);border-radius:var(--radius-sm);">
+                  <i class="bi bi-eye"></i>
+                </a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="text-center mt-4 d-md-none">
+      <a href="{% url 'product_list' %}{% if cat_data.category %}?category={{ cat_data.category.slug }}{% endif %}"
+         class="btn" style="border:2px solid var(--pp-green);color:var(--pp-green);border-radius:50px;padding:.5rem 1.5rem;">
+        View All {{ cat_data.category.name|default:"Plants" }} <i class="bi bi-arrow-right ms-1"></i>
+      </a>
+    </div>
+  </div>
+</section>
+{% endfor %}
+
+{% else %}
+<section class="py-5" style="background:var(--pp-cream);">
+  <div class="container">
+    <div class="empty-state">
+      <div class="empty-icon">🌱</div>
+      <h3 style="font-family:var(--font-display);">No products yet</h3>
+      <p style="color:var(--pp-mid);">Add products via the <a href="/admin/" style="color:var(--pp-green);">Admin Panel</a> to get started.</p>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ===== WHY CHOOSE US ===== -->
+<section class="py-5" style="background:var(--pp-parchment);padding:4.5rem 0;">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div class="section-eyebrow justify-content-center mb-2">Our Promise</div>
+      <h2 class="section-title">Why Plant Palace?</h2>
+      <p class="section-subtitle">We care about every plant and every customer</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-3 col-6">
+        <div class="feature-box">
+          <div class="icon-wrap"><i class="bi bi-tree"></i></div>
+          <h6 class="fw-bold mb-2" style="font-size:.9rem;">100% Healthy Plants</h6>
+          <p class="mb-0" style="font-size:.82rem;color:var(--pp-mid);">Every plant is quality-checked before dispatch.</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="feature-box">
+          <div class="icon-wrap"><i class="bi bi-truck"></i></div>
+          <h6 class="fw-bold mb-2" style="font-size:.9rem;">Safe Packaging</h6>
+          <p class="mb-0" style="font-size:.82rem;color:var(--pp-mid);">Eco-friendly packaging that keeps plants safe.</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="feature-box">
+          <div class="icon-wrap"><i class="bi bi-book"></i></div>
+          <h6 class="fw-bold mb-2" style="font-size:.9rem;">Care Guides Included</h6>
+          <p class="mb-0" style="font-size:.82rem;color:var(--pp-mid);">Expert growing tips with every order.</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="feature-box">
+          <div class="icon-wrap"><i class="bi bi-arrow-counterclockwise"></i></div>
+          <h6 class="fw-bold mb-2" style="font-size:.9rem;">Easy Returns</h6>
+          <p class="mb-0" style="font-size:.82rem;color:var(--pp-mid);">7-day replacement guarantee on all plants.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA BANNER ===== -->
+<section style="background:linear-gradient(135deg, var(--pp-forest) 0%, var(--pp-green) 100%);padding:5rem 0;position:relative;overflow:hidden;">
+  <div style="position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:rgba(168,213,181,.1);border-radius:50%;"></div>
+  <div style="position:absolute;bottom:-30px;left:-30px;width:140px;height:140px;background:rgba(196,151,58,.1);border-radius:50%;"></div>
+  <div class="container text-center text-white" style="position:relative;z-index:1;">
+    <div class="section-eyebrow justify-content-center mb-3" style="color:var(--pp-mint);">Join Our Community</div>
+    <h2 class="mb-3" style="font-family:var(--font-display);font-size:2.5rem;font-weight:700;letter-spacing:-.02em;">Start Your Green Journey Today</h2>
+    <p class="mb-5" style="opacity:.8;font-size:1.05rem;">Join 10,000+ plant lovers who trust Plant Palace.</p>
+    <a href="{% url 'product_list' %}" class="btn btn-light btn-lg px-5 fw-semibold" style="border-radius:50px;color:var(--pp-forest);">
+      <i class="bi bi-shop me-2"></i>Browse All Plants
+    </a>
+  </div>
+</section>
+
+<style>
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-16px); }
+}
+</style>
+
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% block title %}Order Placed — Plant Palace{% endblock %}
+{% block content %}
+<div style="background:linear-gradient(135deg, var(--pp-forest), var(--pp-green));padding:3rem 0;text-align:center;">
+  <div style="font-size:4rem;margin-bottom:.5rem;">🚚</div>
+  <h2 style="font-family:var(--font-display);color:#fff;font-size:2.2rem;font-weight:700;margin-bottom:.5rem;">Order Shipped!</h2>
+  <p style="color:rgba(255,255,255,.8);margin:0;">Thank you, <strong>{{ order.full_name }}</strong>! Your order <strong>#{{ order.id }}</strong> is on its way.</p>
+</div>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+
+      <!-- Progress Steps -->
+      <div class="checkout-card mb-4">
+        <h6 class="fw-bold mb-4" style="color:var(--pp-forest);text-align:center;">Delivery Progress</h6>
+        <div class="d-flex align-items-center justify-content-center gap-3 mb-2">
+          <div class="text-center">
+            <div class="mx-auto mb-2 rounded-circle d-flex align-items-center justify-content-center"
+              style="width:44px;height:44px;background:var(--pp-green);color:#fff;font-size:1rem;">
+              <i class="bi bi-check-lg"></i>
+            </div>
+            <small style="color:var(--pp-green);font-weight:600;">Placed</small>
+          </div>
+          <div style="flex:1;height:3px;background:var(--pp-green);max-width:80px;"></div>
+          <div class="text-center">
+            <div class="mx-auto mb-2 rounded-circle d-flex align-items-center justify-content-center"
+              style="width:44px;height:44px;background:#3b82f6;color:#fff;font-size:1rem;">
+              <i class="bi bi-truck"></i>
+            </div>
+            <small style="color:#3b82f6;font-weight:600;">Shipped ✓</small>
+          </div>
+          <div style="flex:1;height:3px;background:#e5e7eb;max-width:80px;"></div>
+          <div class="text-center">
+            <div class="mx-auto mb-2 rounded-circle d-flex align-items-center justify-content-center"
+              style="width:44px;height:44px;background:#e5e7eb;color:#9ca3af;font-size:1rem;">
+              <i class="bi bi-check2-all"></i>
+            </div>
+            <small style="color:var(--pp-mid);">Delivered</small>
+          </div>
+        </div>
+        <div class="alert alert-info py-2 mt-3 mb-0" style="font-size:.875rem;">
+          <i class="bi bi-info-circle me-2"></i>
+          Your order is with our delivery partner. Once delivered, the status will update to <strong>Delivered</strong>.
+        </div>
+      </div>
+
+      <!-- Order Info -->
+      <div class="checkout-card mb-4" style="background:var(--pp-parchment);border-color:rgba(46,107,69,.12);">
+        <div class="row g-2">
+          <div class="col-6">
+            <small style="color:var(--pp-mid);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;">Order ID</small>
+            <p class="mb-0 fw-bold" style="color:var(--pp-forest);">#{{ order.id }}</p>
+          </div>
+          <div class="col-6">
+            <small style="color:var(--pp-mid);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;">Status</small>
+            <p class="mb-0"><span class="badge-{{ order.status }}">{{ order.get_status_display }}</span></p>
+          </div>
+          <div class="col-6">
+            <small style="color:var(--pp-mid);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;">Payment</small>
+            <p class="mb-0 fw-semibold" style="color:var(--pp-dark);">{{ order.get_payment_method_display }}</p>
+          </div>
+          <div class="col-6">
+            <small style="color:var(--pp-mid);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;">Total</small>
+            <p class="mb-0 fw-bold" style="font-family:var(--font-display);font-size:1.2rem;color:var(--pp-forest);">₹{{ order.total_amount }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Items -->
+      <div class="checkout-card mb-4">
+        <h6 class="fw-bold mb-3" style="color:var(--pp-forest);">Items Ordered</h6>
+        {% for item in order_items %}
+        <div class="d-flex justify-content-between py-2" style="border-bottom:1px solid rgba(46,107,69,.07);">
+          <span style="font-size:.9rem;">{{ item.product_name }} × {{ item.quantity }}</span>
+          <span style="font-weight:600;color:var(--pp-forest);">₹{{ item.subtotal }}</span>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <a href="{% url 'order_detail' order.id %}" class="btn btn-pp-primary px-5" style="border-radius:50px;">
+          <i class="bi bi-bag-check me-2"></i>Track Order
+        </a>
+        <a href="{% url 'product_list' %}" class="btn px-5" style="border:1.5px solid rgba(46,107,69,.2);color:var(--pp-sage);border-radius:50px;">
+          Continue Shopping
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

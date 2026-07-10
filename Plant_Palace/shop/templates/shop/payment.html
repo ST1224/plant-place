@@ -1,0 +1,68 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% block title %}Payment — Plant Palace{% endblock %}
+{% block content %}
+<div style="min-height:80vh;display:flex;align-items:center;background:var(--pp-cream);padding:3rem 0;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-5">
+        <div class="payment-card">
+          <div class="payment-header">
+            <div class="d-flex align-items-center gap-3">
+              <div style="width:50px;height:50px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.4rem;">
+                <i class="bi bi-shield-lock" style="color:var(--pp-mint);"></i>
+              </div>
+              <div>
+                <h5 class="mb-0 fw-bold" style="font-family:var(--font-display);">Secure Payment</h5>
+                <small style="opacity:.75;">Order #{{ order.id }} — ₹{{ order.total_amount }}</small>
+              </div>
+            </div>
+          </div>
+          <div class="p-4">
+            <!-- Order Summary -->
+            <div style="background:var(--pp-parchment);border-radius:var(--radius-sm);border:1px solid rgba(46,107,69,.1);padding:1rem;margin-bottom:1.25rem;">
+              <div class="d-flex justify-content-between mb-1" style="font-size:.875rem;">
+                <span style="color:var(--pp-mid);">Order</span><strong style="color:var(--pp-dark);">#{{ order.id }}</strong>
+              </div>
+              <div class="d-flex justify-content-between mb-1" style="font-size:.875rem;">
+                <span style="color:var(--pp-mid);">Amount</span><strong style="font-family:var(--font-display);color:var(--pp-forest);font-size:1.15rem;">₹{{ order.total_amount }}</strong>
+              </div>
+              <div class="d-flex justify-content-between mb-1" style="font-size:.875rem;">
+                <span style="color:var(--pp-mid);">Customer</span><strong>{{ order.full_name }}</strong>
+              </div>
+              <div class="d-flex justify-content-between" style="font-size:.875rem;">
+                <span style="color:var(--pp-mid);">Method</span><strong>{{ order.get_payment_method_display }}</strong>
+              </div>
+            </div>
+
+            <div class="alert alert-info py-2 mb-4" style="font-size:.82rem;">
+              <i class="bi bi-truck me-2"></i>
+              After confirming, your order moves to <strong>Shipping</strong>. Admin confirms delivery once received.
+            </div>
+
+            <div class="d-grid gap-3">
+              <form method="post" action="{% url 'payment_success' order.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="txn_id" value="{{ txn_ref }}"/>
+                <button type="submit" class="btn btn-pp-primary w-100 py-3 fw-bold" style="font-size:1.05rem;border-radius:var(--radius-sm);">
+                  <i class="bi bi-check-circle me-2"></i>Confirm Payment &amp; Proceed
+                </button>
+              </form>
+              <form method="post" action="{% url 'payment_failure' order.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn w-100 py-2" style="border:1.5px solid rgba(239,68,68,.3);color:#ef4444;border-radius:var(--radius-sm);">
+                  <i class="bi bi-x-circle me-2"></i>Cancel Payment
+                </button>
+              </form>
+            </div>
+            <p class="text-center mt-4 mb-0" style="font-size:.78rem;color:var(--pp-mid);">
+              <i class="bi bi-lock me-1"></i>SSL Encrypted &nbsp;·&nbsp;
+              <i class="bi bi-shield-check me-1"></i>Secure Checkout
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,163 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% block title %}{{ product.product_name }} — Plant Palace{% endblock %}
+
+{% block content %}
+<div class="pp-breadcrumb">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'product_list' %}">Shop</a></li>
+        {% if product.category %}
+        <li class="breadcrumb-item"><a href="{% url 'product_list' %}?category={{ product.category.slug }}">{{ product.category.name }}</a></li>
+        {% endif %}
+        <li class="breadcrumb-item active">{{ product.product_name }}</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row g-5">
+    <!-- Product Image -->
+    <div class="col-lg-5">
+      <div style="border-radius:var(--radius-lg);overflow:hidden;border:1px solid rgba(46,107,69,.1);box-shadow:var(--shadow-md);aspect-ratio:1;background:var(--pp-light);">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.product_name }}"
+               style="width:100%;height:100%;object-fit:cover;" />
+        {% else %}
+          <div class="w-100 h-100 d-flex align-items-center justify-content-center"
+               style="font-size:8rem;background:linear-gradient(135deg,var(--pp-light),var(--pp-parchment));">🌱</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Product Info -->
+    <div class="col-lg-7">
+      {% if product.category %}
+      <span class="badge-cat d-inline-block mb-3">{{ product.category.name }}</span>
+      {% endif %}
+
+      <h1 style="font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--pp-forest);line-height:1.15;margin-bottom:1rem;letter-spacing:-.02em;">{{ product.product_name }}</h1>
+
+      <!-- Price -->
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <span class="price" style="font-size:2rem;">₹{{ product.effective_price }}</span>
+        {% if product.discount_price %}
+          <span class="price-old fs-5">₹{{ product.price }}</span>
+          <span style="background:#fee2e2;color:#991b1b;font-size:.75rem;font-weight:700;padding:.25rem .6rem;border-radius:50px;">SALE</span>
+        {% endif %}
+      </div>
+
+      <!-- Stock -->
+      {% if product.is_in_stock %}
+        <div class="d-flex align-items-center gap-2 mb-4">
+          <div style="width:8px;height:8px;background:#22c55e;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 3px rgba(34,197,94,.2);"></div>
+          <span style="color:#166534;font-weight:500;font-size:.9rem;">In Stock ({{ product.stock }} available)</span>
+        </div>
+      {% else %}
+        <div class="d-flex align-items-center gap-2 mb-4">
+          <div style="width:8px;height:8px;background:#ef4444;border-radius:50%;flex-shrink:0;"></div>
+          <span style="color:#991b1b;font-weight:500;font-size:.9rem;">Currently Out of Stock</span>
+        </div>
+      {% endif %}
+
+      <!-- Description -->
+      <p style="color:var(--pp-mid);line-height:1.8;font-size:.97rem;margin-bottom:2rem;">{{ product.description }}</p>
+
+      <!-- Add to Cart -->
+      {% if product.is_in_stock %}
+      <div class="d-flex gap-3 align-items-center mb-5 flex-wrap">
+        <div class="qty-group input-group" style="width:130px;">
+          <button class="btn btn-outline-secondary qty-decrease" type="button" style="border-color:rgba(46,107,69,.2);color:var(--pp-green);">−</button>
+          <input type="number" class="form-control text-center qty-value" id="qtyInput" value="1" min="1" max="{{ product.stock }}" style="border-color:rgba(46,107,69,.2);" />
+          <button class="btn btn-outline-secondary qty-increase" type="button" style="border-color:rgba(46,107,69,.2);color:var(--pp-green);">+</button>
+        </div>
+        <button class="btn btn-pp-primary btn-lg px-5 btn-add-cart"
+                data-product-id="{{ product.id }}"
+                id="addCartBtn">
+          <i class="bi bi-bag-plus me-2"></i>Add to Cart
+        </button>
+      </div>
+      {% endif %}
+
+      <!-- Tags / Meta -->
+      <div style="border-top:1px solid rgba(46,107,69,.1);padding-top:1.25rem;margin-bottom:1.5rem;">
+        {% if product.category %}
+        <p class="mb-1" style="font-size:.85rem;color:var(--pp-mid);">
+          <strong style="color:var(--pp-dark);">Category:</strong>
+          <a href="{% url 'product_list' %}?category={{ product.category.slug }}" style="color:var(--pp-green);text-decoration:none;">{{ product.category.name }}</a>
+        </p>
+        {% endif %}
+        <p class="mb-0" style="font-size:.85rem;color:var(--pp-mid);">
+          <strong style="color:var(--pp-dark);">SKU:</strong> PP-{{ product.id }}
+        </p>
+      </div>
+
+      <!-- Delivery Info -->
+      <div class="row g-3">
+        <div class="col-4">
+          <div class="feature-box p-3 text-center">
+            <i class="bi bi-truck" style="font-size:1.5rem;color:var(--pp-green);"></i>
+            <p class="small mb-0 mt-2 fw-semibold" style="font-size:.82rem;">Free Delivery</p>
+            <p style="font-size:.72rem;color:var(--pp-mid);margin:0;">Orders ₹499+</p>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="feature-box p-3 text-center">
+            <i class="bi bi-shield-check" style="font-size:1.5rem;color:var(--pp-green);"></i>
+            <p class="small mb-0 mt-2 fw-semibold" style="font-size:.82rem;">Plant Guarantee</p>
+            <p style="font-size:.72rem;color:var(--pp-mid);margin:0;">7-day replacement</p>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="feature-box p-3 text-center">
+            <i class="bi bi-leaf" style="font-size:1.5rem;color:var(--pp-green);"></i>
+            <p class="small mb-0 mt-2 fw-semibold" style="font-size:.82rem;">Care Guide</p>
+            <p style="font-size:.72rem;color:var(--pp-mid);margin:0;">Included free</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related Products -->
+  {% if related_products %}
+  <div style="margin-top:4rem;padding-top:3rem;border-top:1px solid rgba(46,107,69,.1);">
+    <div class="section-eyebrow mb-2">More Picks</div>
+    <h4 style="font-family:var(--font-display);font-size:1.8rem;color:var(--pp-forest);font-weight:700;margin-bottom:2rem;">You Might Also Like</h4>
+    <div class="row g-4">
+      {% for rp in related_products %}
+      <div class="col-6 col-md-3">
+        <div class="product-card card border-0">
+          <a href="{% url 'product_detail' rp.id %}">
+            <div class="card-img-wrap">
+              {% if rp.image %}
+                <img src="{{ rp.image.url }}" alt="{{ rp.product_name }}" loading="lazy" />
+              {% else %}
+                <div class="w-100 h-100 d-flex align-items-center justify-content-center" style="font-size:3rem;background:var(--pp-light);">🌿</div>
+              {% endif %}
+            </div>
+          </a>
+          <div class="card-body p-3">
+            <h6 class="card-title mb-1" style="font-size:.88rem;"><a href="{% url 'product_detail' rp.id %}" class="text-decoration-none" style="color:var(--pp-dark);">{{ rp.product_name }}</a></h6>
+            <span class="price">₹{{ rp.effective_price }}</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('addCartBtn')?.addEventListener('click', function(e) {
+  const qty = document.getElementById('qtyInput')?.value || 1;
+  this.dataset.qty = qty;
+});
+</script>
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends 'shop/base.html' %}
+{% block title %}My Profile — Plant Palace{% endblock %}
+
+{% block content %}
+<div class="pp-breadcrumb">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item active">My Profile</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row g-4">
+    <!-- Sidebar -->
+    <div class="col-lg-3">
+      <div class="checkout-card text-center">
+        {% if user_profile.avatar %}
+          <img src="{{ user_profile.avatar.url }}" class="avatar-circle mb-3" alt="Avatar" />
+        {% else %}
+          <div class="avatar-placeholder mx-auto mb-3">
+            {{ request.user.first_name|first|upper|default:request.user.username|first|upper }}
+          </div>
+        {% endif %}
+        <h6 class="fw-bold mb-0" style="color:var(--pp-forest);">{{ request.user.get_full_name|default:request.user.username }}</h6>
+        <small style="color:var(--pp-mid);">{{ request.user.email }}</small>
+
+        <div style="border-top:1px solid rgba(46,107,69,.1);margin:1rem 0;"></div>
+        <div class="list-group list-group-flush text-start">
+          <a href="{% url 'profile' %}" class="list-group-item list-group-item-action rounded-2 border-0 mb-1" style="background:var(--pp-forest);color:#fff;font-size:.875rem;font-weight:500;">
+            <i class="bi bi-person me-2"></i>My Profile
+          </a>
+          <a href="{% url 'order_list' %}" class="list-group-item list-group-item-action rounded-2 border-0 mb-1" style="font-size:.875rem;color:var(--pp-mid);">
+            <i class="bi bi-bag me-2"></i>My Orders
+          </a>
+          <a href="{% url 'tracker' %}" class="list-group-item list-group-item-action rounded-2 border-0 mb-1" style="font-size:.875rem;color:var(--pp-mid);">
+            <i class="bi bi-truck me-2"></i>Track Order
+          </a>
+          <a href="{% url 'logout' %}" class="list-group-item list-group-item-action rounded-2 border-0" style="font-size:.875rem;color:#ef4444;">
+            <i class="bi bi-box-arrow-right me-2"></i>Logout
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div class="col-lg-9">
+      <!-- Edit Profile -->
+      <div class="checkout-card mb-4">
+        <h5 class="fw-bold mb-4" style="font-family:var(--font-display);color:var(--pp-forest);font-size:1.4rem;">
+          <i class="bi bi-person-gear me-2" style="color:var(--pp-green);"></i>Edit Profile
+        </h5>
+        <form method="post" action="{% url 'profile' %}" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" style="font-size:.875rem;font-weight:500;">First Name</label>
+              <input type="text" class="form-control" name="first_name" value="{{ request.user.first_name }}" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" style="font-size:.875rem;font-weight:500;">Last Name</label>
+              <input type="text" class="form-control" name="last_name" value="{{ request.user.last_name }}" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" style="font-size:.875rem;font-weight:500;">Email</label>
+              <input type="email" class="form-control" name="email" value="{{ request.user.email }}" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" style="font-size:.875rem;font-weight:500;">Phone</label>
+              <div class="input-group">
+                <span class="input-group-text">+91</span>
+                <input type="tel" class="form-control" name="phone" value="{{ user_profile.phone }}" />
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label" style="font-size:.875rem;font-weight:500;">Address</label>
+              <input type="text" class="form-control" name="address" value="{{ user_profile.address }}" />
+            </div>
+            <div class="col-md-5">
+              <label class="form-label" style="font-size:.875rem;font-weight:500;">City</label>
+              <input type="text" class="form-control" name="city" value="{{ user_profile.city }}" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" style="font-size:.875rem;font-weight:500;">State</label>
+              <input type="text" class="form-control" name="state" value="{{ user_profile.state }}" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label" style="font-size:.875rem;font-weight:500;">PIN Code</label>
+              <input type="text" class="form-control" name="zip_code" value="{{ user_profile.zip_code }}" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" style="font-size:.875rem;font-weight:500;">Profile Photo</label>
+              <input type="file" class="form-control" name="avatar" accept="image/*" />
+            </div>
+            <div class="col-12">
+              <button type="submit" class="btn btn-pp-primary px-5 py-2">
+                <i class="bi bi-save me-2"></i>Save Changes
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Recent Orders -->
+      <div class="checkout-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0" style="font-family:var(--font-display);color:var(--pp-forest);font-size:1.3rem;">
+            <i class="bi bi-bag me-2" style="color:var(--pp-green);"></i>Recent Orders
+          </h5>
+          <a href="{% url 'order_list' %}" class="btn btn-sm" style="border:1.5px solid rgba(46,107,69,.2);color:var(--pp-green);border-radius:50px;font-size:.8rem;">View All</a>
+        </div>
+        {% for order in recent_orders %}
+        <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom:1px solid rgba(46,107,69,.07);">
+          <div>
+            <strong style="color:var(--pp-forest);">#{{ order.id }}</strong>
+            <small class="ms-2" style="color:var(--pp-mid);">{{ order.created_at|date:"d M Y" }}</small>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <span class="badge-{{ order.status }}">{{ order.get_status_display }}</span>
+            <strong style="color:var(--pp-forest);font-family:var(--font-display);">₹{{ order.total_amount }}</strong>
+            <a href="{% url 'order_detail' order.id %}" class="btn btn-sm" style="border:1.5px solid rgba(46,107,69,.2);color:var(--pp-sage);border-radius:var(--radius-sm);font-size:.78rem;">View</a>
+          </div>
+        </div>
+        {% empty %}
+        <p style="color:var(--pp-mid);font-size:.875rem;">No orders yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

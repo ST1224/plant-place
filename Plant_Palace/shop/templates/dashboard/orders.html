@@ -1,0 +1,138 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Orders{% endblock %}
+{% block page_title %}Orders Management{% endblock %}
+{% block breadcrumb %}<span>Orders</span>{% endblock %}
+
+{% block content %}
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+  <form method="get" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;width:100%;">
+    <div style="position:relative;flex:1;min-width:200px;max-width:280px;">
+      <i class="bi bi-search" style="position:absolute;left:.9rem;top:50%;transform:translateY(-50%);color:var(--text-3);font-size:.85rem;pointer-events:none;"></i>
+      <input type="text" name="q" value="{{ search_q }}" placeholder="Search name, email, ID…"
+        class="pp-input" style="padding-left:2.2rem;width:100%;"/>
+    </div>
+    <select name="status" class="pp-select" onchange="this.form.submit()" style="min-width:160px;">
+      <option value="">All Statuses</option>
+      {% for val, lbl in status_choices %}
+      <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ lbl }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn-gold"><i class="bi bi-funnel-fill"></i> Filter</button>
+    {% if status_filter or search_q %}
+    <a href="{% url 'dashboard_orders' %}" class="btn-ghost"><i class="bi bi-x-lg"></i> Clear</a>
+    {% endif %}
+    <span style="margin-left:auto;color:var(--text-3);font-size:.82rem;font-weight:500;">
+      <i class="bi bi-list-ul" style="margin-right:.35rem;"></i>{{ total_count }} order{{ total_count|pluralize }}
+    </span>
+  </form>
+</div>
+
+<div class="pp-card">
+  <div style="overflow-x:auto;">
+    <table class="pp-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Customer</th>
+          <th>Items</th>
+          <th>Amount</th>
+          <th>Payment</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in page_obj %}
+        <tr>
+          <td><span style="font-family:'Playfair Display',serif;font-weight:700;color:var(--gold);font-size:.9rem;">#{{ order.id }}</span></td>
+          <td>
+            <div style="font-weight:500;font-size:.875rem;">{{ order.full_name }}</div>
+            <div style="font-size:.75rem;color:var(--text-3);">{{ order.email }}</div>
+            <div style="font-size:.73rem;color:var(--text-3);"><i class="bi bi-telephone" style="margin-right:.25rem;"></i>{{ order.phone }}</div>
+          </td>
+          <td><span style="color:var(--text-2);font-size:.82rem;">{{ order.items.count }} item{{ order.items.count|pluralize }}</span></td>
+          <td><span style="font-weight:700;font-size:.95rem;color:var(--text-1);">₹{{ order.total_amount }}</span></td>
+          <td>
+            <span class="badge-pp {% if order.payment_method == 'cod' %}b-cod{% else %}b-paid{% endif %}">
+              {{ order.get_payment_method_display }}
+            </span>
+          </td>
+          <td><span class="badge-pp b-{{ order.status }}">{{ order.get_status_display }}</span></td>
+          <td>
+            <div style="font-size:.8rem;color:var(--text-2);">{{ order.created_at|date:"d M Y" }}</div>
+            <div style="font-size:.74rem;color:var(--text-3);">{{ order.created_at|date:"h:i A" }}</div>
+          </td>
+          <td>
+            <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+              <a href="{% url 'dashboard_order_detail' order.id %}" class="act-btn act-view" title="View Details">
+                <i class="bi bi-eye"></i>
+              </a>
+              {% if order.status == 'pending' %}
+                <form method="post" action="{% url 'dashboard_order_action' order.id %}" style="display:inline;">
+                  {% csrf_token %}<input type="hidden" name="action" value="confirm_shipping">
+                  <button type="submit" class="act-btn act-ship" title="Mark as Shipped">
+                    <i class="bi bi-truck"></i>
+                  </button>
+                </form>
+                <form method="post" action="{% url 'dashboard_order_action' order.id %}" style="display:inline;">
+                  {% csrf_token %}<input type="hidden" name="action" value="cancel">
+                  <button type="submit" class="act-btn act-cancel" title="Cancel Order"
+                    onclick="return confirm('Cancel order #{{ order.id }}?')">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </form>
+              {% elif order.status == 'shipped' %}
+                <form method="post" action="{% url 'dashboard_order_action' order.id %}" style="display:inline;">
+                  {% csrf_token %}<input type="hidden" name="action" value="confirm_delivery">
+                  <button type="submit" class="act-btn act-deliver" title="Confirm Delivery">
+                    <i class="bi bi-check-lg"></i>
+                  </button>
+                </form>
+                <form method="post" action="{% url 'dashboard_order_action' order.id %}" style="display:inline;">
+                  {% csrf_token %}<input type="hidden" name="action" value="cancel">
+                  <button type="submit" class="act-btn act-cancel" title="Cancel Order"
+                    onclick="return confirm('Cancel order #{{ order.id }}?')">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </form>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" style="text-align:center;padding:3rem;color:var(--text-3);">
+          <i class="bi bi-inbox" style="font-size:2rem;display:block;margin-bottom:.75rem;opacity:.5;"></i>
+          <span style="font-size:.9rem;">No orders found.</span>
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if page_obj.has_other_pages %}
+  <div class="pp-pagination">
+    {% if page_obj.has_previous %}
+    <a class="pp-page" href="?page={{ page_obj.previous_page_number }}&q={{ search_q }}&status={{ status_filter }}">
+      <i class="bi bi-chevron-left"></i>
+    </a>
+    {% endif %}
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+      <span class="pp-page active">{{ num }}</span>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+      <a class="pp-page" href="?page={{ num }}&q={{ search_q }}&status={{ status_filter }}">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+    <a class="pp-page" href="?page={{ page_obj.next_page_number }}&q={{ search_q }}&status={{ status_filter }}">
+      <i class="bi bi-chevron-right"></i>
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

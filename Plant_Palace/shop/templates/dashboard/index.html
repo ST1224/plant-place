@@ -1,0 +1,260 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Overview{% endblock %}
+{% block page_title %}Dashboard Overview{% endblock %}
+{% block breadcrumb %}<span>Overview</span>{% endblock %}
+
+{% block content %}
+
+<!-- Stats Grid -->
+<div class="stat-grid">
+  <div class="stat-card" style="--card-accent:#c9a94e;">
+    <div class="stat-top">
+      <div class="stat-icon" style="background:rgba(201,169,78,.1);color:var(--gold);">
+        <i class="bi bi-bag-check-fill"></i>
+      </div>
+      <span class="stat-trend trend-neu"><i class="bi bi-activity"></i> All time</span>
+    </div>
+    <div class="stat-val">{{ total_orders }}</div>
+    <div class="stat-lbl">Total Orders</div>
+  </div>
+
+  <div class="stat-card" style="--card-accent:#e8c97a;">
+    <div class="stat-top">
+      <div class="stat-icon" style="background:rgba(201,169,78,.08);color:#e8c97a;">
+        <i class="bi bi-hourglass-split"></i>
+      </div>
+      <span class="stat-trend trend-neu"><i class="bi bi-clock"></i> Awaiting</span>
+    </div>
+    <div class="stat-val">{{ pending_orders }}</div>
+    <div class="stat-lbl">Pending Orders</div>
+  </div>
+
+  <div class="stat-card" style="--card-accent:#79c0ff;">
+    <div class="stat-top">
+      <div class="stat-icon" style="background:rgba(56,139,253,.1);color:#79c0ff;">
+        <i class="bi bi-truck"></i>
+      </div>
+      <span class="stat-trend trend-neu"><i class="bi bi-arrow-right"></i> In transit</span>
+    </div>
+    <div class="stat-val">{{ shipped_orders }}</div>
+    <div class="stat-lbl">Shipped Orders</div>
+  </div>
+
+  <div class="stat-card" style="--card-accent:#7ee787;">
+    <div class="stat-top">
+      <div class="stat-icon" style="background:rgba(46,160,67,.1);color:#7ee787;">
+        <i class="bi bi-check-circle-fill"></i>
+      </div>
+      <span class="stat-trend trend-up"><i class="bi bi-arrow-up"></i> Completed</span>
+    </div>
+    <div class="stat-val">{{ delivered_orders }}</div>
+    <div class="stat-lbl">Delivered</div>
+  </div>
+
+  <div class="stat-card" style="--card-accent:#c9a94e;">
+    <div class="stat-top">
+      <div class="stat-icon" style="background:rgba(201,169,78,.1);color:var(--gold);">
+        <i class="bi bi-currency-rupee"></i>
+      </div>
+      <span class="stat-trend trend-up"><i class="bi bi-arrow-up"></i> Revenue</span>
+    </div>
+    <div class="stat-val" style="font-size:1.55rem;">₹{{ total_revenue|floatformat:0 }}</div>
+    <div class="stat-lbl">Total Revenue</div>
+  </div>
+
+  <div class="stat-card" style="--card-accent:#e8c97a;">
+    <div class="stat-top">
+      <div class="stat-icon" style="background:rgba(201,169,78,.08);color:#e8c97a;">
+        <i class="bi bi-calendar-day"></i>
+      </div>
+      <span class="stat-trend trend-neu"><i class="bi bi-dot"></i> Today</span>
+    </div>
+    <div class="stat-val">{{ today_orders }}</div>
+    <div class="stat-lbl">Today's Orders</div>
+  </div>
+
+  <div class="stat-card" style="--card-accent:#7ee787;">
+    <div class="stat-top">
+      <div class="stat-icon" style="background:rgba(46,160,67,.1);color:#7ee787;">
+        <i class="bi bi-flower1"></i>
+      </div>
+      {% if low_stock %}
+      <span class="stat-trend trend-down"><i class="bi bi-exclamation-triangle"></i> {{ low_stock }} low</span>
+      {% else %}
+      <span class="stat-trend trend-up"><i class="bi bi-check"></i> All stocked</span>
+      {% endif %}
+    </div>
+    <div class="stat-val">{{ total_products }}</div>
+    <div class="stat-lbl">Products</div>
+  </div>
+
+  <div class="stat-card" style="--card-accent:#c084fc;">
+    <div class="stat-top">
+      <div class="stat-icon" style="background:rgba(192,132,252,.1);color:#c084fc;">
+        <i class="bi bi-people-fill"></i>
+      </div>
+      <span class="stat-trend trend-up"><i class="bi bi-arrow-up"></i> Growing</span>
+    </div>
+    <div class="stat-val">{{ total_customers }}</div>
+    <div class="stat-lbl">Customers</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 380px;gap:1.5rem;" class="main-grid">
+
+  <!-- Recent Orders -->
+  <div>
+    <div class="pp-card">
+      <div class="pp-card-header">
+        <div class="pp-card-title"><i class="bi bi-bag-check-fill"></i> Recent Orders</div>
+        <a href="{% url 'dashboard_orders' %}" class="act-btn act-view" style="font-size:.78rem;">
+          View All <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="pp-table">
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Customer</th>
+              <th>Amount</th>
+              <th>Payment</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in recent_orders %}
+            <tr>
+              <td><span style="font-family:'Playfair Display',serif;font-weight:600;color:var(--gold);">#{{ order.id }}</span></td>
+              <td>
+                <div style="font-weight:500;font-size:.87rem;">{{ order.full_name }}</div>
+                <div style="font-size:.74rem;color:var(--text-3);">{{ order.created_at|date:"d M, h:i A" }}</div>
+              </td>
+              <td><span style="font-weight:600;color:var(--text-1);">₹{{ order.total_amount }}</span></td>
+              <td><span style="font-size:.8rem;color:var(--text-2);">{{ order.get_payment_method_display }}</span></td>
+              <td><span class="badge-pp b-{{ order.status }}">{{ order.get_status_display }}</span></td>
+              <td>
+                <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+                  <a href="{% url 'dashboard_order_detail' order.id %}" class="act-btn act-view"><i class="bi bi-eye"></i></a>
+                  {% if order.status == 'pending' %}
+                    <form method="post" action="{% url 'dashboard_order_action' order.id %}" style="display:inline;">
+                      {% csrf_token %}<input type="hidden" name="action" value="confirm_shipping">
+                      <button type="submit" class="act-btn act-ship"><i class="bi bi-truck"></i></button>
+                    </form>
+                  {% elif order.status == 'shipped' %}
+                    <form method="post" action="{% url 'dashboard_order_action' order.id %}" style="display:inline;">
+                      {% csrf_token %}<input type="hidden" name="action" value="confirm_delivery">
+                      <button type="submit" class="act-btn act-deliver"><i class="bi bi-check-lg"></i></button>
+                    </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" style="text-align:center;padding:2.5rem;color:var(--text-3);">
+              <i class="bi bi-inbox" style="font-size:1.8rem;display:block;margin-bottom:.5rem;"></i>No orders yet.
+            </td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column -->
+  <div>
+
+    <!-- Order Status Breakdown -->
+    <div class="pp-card" style="margin-bottom:1.25rem;">
+      <div class="pp-card-header">
+        <div class="pp-card-title"><i class="bi bi-pie-chart-fill"></i> Order Breakdown</div>
+      </div>
+      <div style="padding:1.25rem;">
+        {% with total=total_orders %}
+        {% if total > 0 %}
+
+        <div style="margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.4rem;">
+            <span style="color:var(--text-2);">Shipped</span>
+            <span style="font-weight:600;color:#79c0ff;">{{ shipped_orders }}</span>
+          </div>
+          <div class="pp-progress">
+            <div class="pp-progress-bar" style="width:{% widthratio shipped_orders total 100 %}%;background:#388bfd;"></div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.4rem;">
+            <span style="color:var(--text-2);">Delivered</span>
+            <span style="font-weight:600;color:#7ee787;">{{ delivered_orders }}</span>
+          </div>
+          <div class="pp-progress">
+            <div class="pp-progress-bar" style="width:{% widthratio delivered_orders total 100 %}%;background:#2ea043;"></div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.4rem;">
+            <span style="color:var(--text-2);">Pending</span>
+            <span style="font-weight:600;color:var(--gold-lt);">{{ pending_orders }}</span>
+          </div>
+          <div class="pp-progress">
+            <div class="pp-progress-bar" style="width:{% widthratio pending_orders total 100 %}%;background:var(--gold);"></div>
+          </div>
+        </div>
+
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.4rem;">
+            <span style="color:var(--text-2);">Cancelled</span>
+            <span style="font-weight:600;color:#ff7b72;">{{ cancelled_orders }}</span>
+          </div>
+          <div class="pp-progress">
+            <div class="pp-progress-bar" style="width:{% widthratio cancelled_orders total 100 %}%;background:#da3633;"></div>
+          </div>
+        </div>
+
+        {% else %}
+        <p style="text-align:center;color:var(--text-3);font-size:.85rem;padding:1rem 0;">No orders yet.</p>
+        {% endif %}
+        {% endwith %}
+      </div>
+    </div>
+
+    <!-- Recent Messages -->
+    <div class="pp-card">
+      <div class="pp-card-header">
+        <div class="pp-card-title"><i class="bi bi-chat-square-dots-fill"></i> Messages</div>
+        <a href="{% url 'dashboard_contacts' %}" class="act-btn act-view" style="font-size:.75rem;">
+          View All
+          {% if unread_contacts %}<span class="sidebar-badge" style="margin-left:.3rem;">{{ unread_contacts }}</span>{% endif %}
+        </a>
+      </div>
+      {% for contact in recent_contacts %}
+      <div style="padding:.9rem 1.25rem;border-bottom:1px solid rgba(255,255,255,.04);{% if not contact.is_read %}background:rgba(201,169,78,.03);{% endif %}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;">
+          <span style="font-size:.87rem;font-weight:500;color:var(--text-1);">{{ contact.name }}</span>
+          {% if not contact.is_read %}
+          <span style="width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:.35rem;display:inline-block;"></span>
+          {% endif %}
+        </div>
+        <div style="font-size:.78rem;color:var(--text-3);margin-top:.15rem;">{{ contact.subject|default:"No subject"|truncatechars:42 }}</div>
+        <div style="font-size:.72rem;color:var(--text-3);margin-top:.15rem;"><i class="bi bi-clock" style="margin-right:.25rem;"></i>{{ contact.timestamp|date:"d M, h:i A" }}</div>
+      </div>
+      {% empty %}
+      <p style="text-align:center;color:var(--text-3);font-size:.85rem;padding:2rem 1rem;">No messages yet.</p>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+@media (max-width: 1100px) {
+  .main-grid { grid-template-columns: 1fr !important; }
+}
+</style>
+{% endblock %}

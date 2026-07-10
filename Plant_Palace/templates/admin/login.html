@@ -1,0 +1,772 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <title>Sign In &mdash; PlantPalace Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  {{ form.media }}
+  <style>
+    /* ════════════════════════════════════════════════
+       PLANTPALACE LOGIN — OBSIDIAN GOLD PRIVATE BANKING
+       Fully standalone · Cross-browser · No webkit-only
+       ════════════════════════════════════════════════ */
+
+    *, *:before, *:after {
+      -webkit-box-sizing: border-box;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --ch-0:      #0a0c0e;
+      --ch-1:      #0f1214;
+      --ch-2:      #141719;
+      --ch-3:      #1a1e21;
+      --ch-4:      #21262b;
+      --ch-5:      #2a3038;
+      --gold:      #c9a84c;
+      --gold-lt:   #dfc06a;
+      --gold-dk:   #a07830;
+      --gold-glow: rgba(201,168,76,0.13);
+      --gold-bd:   rgba(201,168,76,0.22);
+      --tx-1:      #f0e6d0;
+      --tx-2:      #9aa3ad;
+      --tx-3:      #565f6b;
+      --bd:        rgba(255,255,255,0.065);
+      --r:         6px;
+    }
+
+    html {
+      height: 100%;
+      /* Cross-browser scrollbar */
+      scrollbar-width: thin;
+      scrollbar-color: var(--ch-5) var(--ch-1);
+    }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--ch-1); }
+    ::-webkit-scrollbar-thumb { background: var(--ch-5); border-radius: 4px; }
+
+    body {
+      height: 100%;
+      min-height: 100vh;
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--ch-0);
+      color: var(--tx-1);
+      /* Noise texture — pure CSS via SVG data URI */
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.022'/%3E%3C/svg%3E");
+    }
+
+    /* ════ Layout ════ */
+    .login-shell {
+      min-height: 100vh;
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+    }
+
+    /* ════ Left panel ════ */
+    .l-panel {
+      -webkit-box-flex: 1;
+      -ms-flex: 1;
+      flex: 1;
+      background-color: var(--ch-1);
+      border-right: 1px solid var(--bd);
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+      flex-direction: column;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
+      justify-content: center;
+      padding: 3rem 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Grid background — cross-browser inline SVG */
+    .l-panel-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 1;
+    }
+
+    /* Gold ambient glow */
+    .l-glow {
+      position: absolute;
+      width: 480px; height: 480px;
+      border-radius: 50%;
+      background: -webkit-radial-gradient(center, rgba(201,168,76,.1) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(201,168,76,.1) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      -webkit-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    /* Corner rule lines for art deco feel */
+    .l-corner {
+      position: absolute;
+      width: 60px; height: 60px;
+      pointer-events: none;
+    }
+    .l-corner.tl { top: 24px; left: 24px; border-top: 1px solid var(--gold-bd); border-left: 1px solid var(--gold-bd); }
+    .l-corner.tr { top: 24px; right: 24px; border-top: 1px solid var(--gold-bd); border-right: 1px solid var(--gold-bd); }
+    .l-corner.bl { bottom: 24px; left: 24px; border-bottom: 1px solid var(--gold-bd); border-left: 1px solid var(--gold-bd); }
+    .l-corner.br { bottom: 24px; right: 24px; border-bottom: 1px solid var(--gold-bd); border-right: 1px solid var(--gold-bd); }
+
+    .l-inner {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      max-width: 360px;
+      width: 100%;
+    }
+
+    /* Brand emblem */
+    .brand-emblem {
+      width: 78px; height: 78px;
+      margin: 0 auto 1.75rem;
+      background: -webkit-linear-gradient(135deg, var(--ch-3), var(--ch-4));
+      background: linear-gradient(135deg, var(--ch-3), var(--ch-4));
+      border: 1px solid var(--gold-bd);
+      border-radius: 16px;
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      box-shadow:
+        0 0 0 1px rgba(201,168,76,.08),
+        0 0 32px rgba(201,168,76,.12),
+        inset 0 1px 0 rgba(255,255,255,.04);
+      position: relative;
+    }
+    /* Shimmer gradient overlay */
+    .brand-emblem:before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 15px;
+      background: -webkit-linear-gradient(135deg, rgba(201,168,76,.18) 0%, transparent 55%);
+      background: linear-gradient(135deg, rgba(201,168,76,.18) 0%, transparent 55%);
+      pointer-events: none;
+    }
+
+    .l-brand-name {
+      font-family: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+      font-size: 2.8rem;
+      font-weight: 400;
+      color: var(--tx-1);
+      letter-spacing: -.02em;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .l-brand-name em {
+      color: var(--gold);
+      font-style: normal;
+    }
+    .l-tagline {
+      color: var(--tx-3);
+      font-size: .78rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
+      font-weight: 500;
+    }
+
+    /* Feature chips */
+    .l-features {
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      gap: 1.5rem;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
+      justify-content: center;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+    }
+    .l-feat {
+      text-align: center;
+    }
+    .l-feat-icon {
+      width: 40px; height: 40px;
+      background: var(--gold-glow);
+      border: 1px solid var(--gold-bd);
+      border-radius: var(--r);
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+      justify-content: center;
+      font-size: .95rem;
+      margin: 0 auto 6px;
+    }
+    .l-feat-label {
+      font-size: .68rem;
+      color: var(--tx-3);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      font-weight: 600;
+    }
+    .l-divider {
+      width: 1px;
+      height: 40px;
+      background: var(--bd);
+      -ms-flex-negative: 0;
+      flex-shrink: 0;
+    }
+
+    /* Floating dots — CSS animation, no JS */
+    .dot-float {
+      position: absolute;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: 0;
+      -webkit-animation: floatUp linear infinite;
+      animation: floatUp linear infinite;
+    }
+    @-webkit-keyframes floatUp {
+      0%   { -webkit-transform: translateY(0) scale(1); transform: translateY(0) scale(1); opacity: .35; }
+      100% { -webkit-transform: translateY(-110px) scale(.5); transform: translateY(-110px) scale(.5); opacity: 0; }
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(0) scale(1); opacity: .35; }
+      100% { transform: translateY(-110px) scale(.5); opacity: 0; }
+    }
+
+    /* ════ Right panel (form) ════ */
+    .r-panel {
+      width: 460px;
+      -ms-flex-negative: 0;
+      flex-shrink: 0;
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
+      justify-content: center;
+      padding: 3rem 2.75rem;
+      background: var(--ch-0);
+      position: relative;
+    }
+    .r-panel:before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: -webkit-radial-gradient(50% 0%, ellipse cover, rgba(201,168,76,.04) 0%, transparent 65%);
+      background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201,168,76,.04) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .login-box {
+      width: 100%;
+      position: relative;
+    }
+
+    /* Status dot */
+    .status-row {
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 1.25rem;
+    }
+    .status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 6px var(--gold), 0 0 12px rgba(201,168,76,.4);
+      -webkit-animation: pulse 2.2s ease-in-out infinite;
+      animation: pulse 2.2s ease-in-out infinite;
+    }
+    @-webkit-keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .45; }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .45; }
+    }
+    .status-text {
+      font-size: .64rem;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      font-weight: 700;
+    }
+
+    .login-title {
+      font-family: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+      font-size: 2rem;
+      font-weight: 400;
+      color: var(--tx-1);
+      letter-spacing: -.01em;
+      margin-bottom: 4px;
+      line-height: 1.15;
+    }
+    .login-sub {
+      color: var(--tx-2);
+      font-size: .85rem;
+      margin-bottom: 1.85rem;
+      line-height: 1.5;
+    }
+
+    /* Rule divider */
+    .rule-divider {
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1.85rem;
+    }
+    .rule-divider:before,
+    .rule-divider:after {
+      content: '';
+      -webkit-box-flex: 1;
+      -ms-flex: 1;
+      flex: 1;
+      height: 1px;
+      background: var(--bd);
+    }
+    .rule-text {
+      font-size: .62rem;
+      color: var(--tx-3);
+      text-transform: uppercase;
+      letter-spacing: .13em;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* Error & warning boxes */
+    .msg-box {
+      border-radius: var(--r);
+      padding: 10px 14px;
+      font-size: .83rem;
+      margin-bottom: 1.25rem;
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-align: flex-start;
+      -ms-flex-align: flex-start;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.45;
+    }
+    .msg-error {
+      background: rgba(248,113,113,.08);
+      border: 1px solid rgba(248,113,113,.22);
+      border-left: 3px solid #f87171;
+      color: #fca5a5;
+    }
+    .msg-info {
+      background: var(--gold-glow);
+      border: 1px solid var(--gold-bd);
+      border-left: 3px solid var(--gold);
+      color: var(--gold);
+    }
+    .msg-box i { font-size: .95rem; margin-top: 1px; -ms-flex-negative: 0; flex-shrink: 0; }
+
+    /* Form field */
+    .f-row { margin-bottom: 1.3rem; }
+    .f-label {
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      font-size: .8rem;
+      color: var(--tx-2);
+      margin-bottom: 7px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .f-label i { color: var(--gold); font-size: .85rem; }
+
+    .f-wrap { position: relative; }
+    .f-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      -webkit-transform: translateY(-50%);
+      transform: translateY(-50%);
+      color: var(--tx-3);
+      font-size: .95rem;
+      pointer-events: none;
+      -webkit-transition: color .15s;
+      transition: color .15s;
+    }
+    /* Focus-within — supported in all modern browsers + IE11 polyfill via JS */
+    .f-wrap:focus-within .f-icon { color: var(--gold); }
+
+    .f-input {
+      width: 100%;
+      padding: 11px 42px 11px 38px;
+      background: var(--ch-3);
+      border: 1px solid var(--bd);
+      border-radius: var(--r);
+      font-family: 'Outfit', -apple-system, sans-serif;
+      font-size: .9rem;
+      color: var(--tx-1);
+      outline: none;
+      -webkit-transition: border-color .15s, box-shadow .15s, background .15s;
+      transition: border-color .15s, box-shadow .15s, background .15s;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+    .f-input::-webkit-input-placeholder { color: var(--tx-3); }
+    .f-input::-moz-placeholder { color: var(--tx-3); opacity: 1; }
+    .f-input:-ms-input-placeholder { color: var(--tx-3); }
+    .f-input::placeholder { color: var(--tx-3); }
+    .f-input:focus {
+      border-color: var(--gold-bd);
+      box-shadow: 0 0 0 3px rgba(201,168,76,.08);
+      background: var(--ch-2);
+    }
+
+    .pwd-toggle {
+      position: absolute;
+      right: 11px;
+      top: 50%;
+      -webkit-transform: translateY(-50%);
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--tx-3);
+      font-size: .95rem;
+      padding: 0;
+      -webkit-transition: color .14s;
+      transition: color .14s;
+      line-height: 1;
+    }
+    .pwd-toggle:hover { color: var(--gold); }
+
+    /* Submit button */
+    .btn-signin {
+      width: 100%;
+      padding: 12px;
+      background: -webkit-linear-gradient(315deg, var(--gold-dk) 0%, var(--gold) 100%);
+      background: linear-gradient(135deg, var(--gold-dk) 0%, var(--gold) 100%);
+      color: #0a0c0e;
+      border: none;
+      border-radius: var(--r);
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 1rem;
+      font-weight: 400;
+      letter-spacing: .04em;
+      cursor: pointer;
+      -webkit-transition: opacity .15s, -webkit-transform .12s;
+      transition: opacity .15s, transform .12s;
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 2px 20px rgba(201,168,76,.22);
+    }
+    /* Shimmer overlay */
+    .btn-signin:before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: -webkit-linear-gradient(135deg, rgba(255,255,255,.12) 0%, transparent 55%);
+      background: linear-gradient(135deg, rgba(255,255,255,.12) 0%, transparent 55%);
+      opacity: 0;
+      -webkit-transition: opacity .18s;
+      transition: opacity .18s;
+    }
+    .btn-signin:hover {
+      opacity: .92;
+      -webkit-transform: translateY(-1px);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(201,168,76,.3);
+    }
+    .btn-signin:hover:before { opacity: 1; }
+    .btn-signin:active { -webkit-transform: translateY(0); transform: translateY(0); }
+
+    /* Bottom links area */
+    .bottom-row {
+      margin-top: 1.4rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--bd);
+      text-align: center;
+    }
+    .back-link {
+      font-size: .8rem;
+      color: var(--tx-2);
+      text-decoration: none;
+      -webkit-transition: color .14s;
+      transition: color .14s;
+    }
+    .back-link:hover { color: var(--gold); }
+    .back-link i { margin-right: 4px; }
+
+    .security-badge {
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 12px;
+      font-size: .72rem;
+      color: var(--tx-3);
+      letter-spacing: .02em;
+    }
+    .security-badge i { color: var(--gold); font-size: .78rem; }
+
+    /* ════ Responsive ════ */
+    @media screen and (max-width: 820px) {
+      .l-panel { display: none; }
+      .r-panel { width: 100%; padding: 2.5rem 1.5rem; }
+    }
+    @media screen and (max-width: 480px) {
+      .r-panel { padding: 2rem 1.25rem; }
+      .login-title { font-size: 1.65rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="login-shell">
+
+  <!-- ════ Left decorative panel ════ -->
+  <div class="l-panel">
+    <!-- SVG grid background -->
+    <svg class="l-panel-bg" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+          <path d="M 48 0 L 0 0 0 48" fill="none" stroke="rgba(255,255,255,0.055)" stroke-width="1"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grid)"/>
+    </svg>
+
+    <!-- Ambient glow -->
+    <div class="l-glow"></div>
+
+    <!-- Art deco corner brackets -->
+    <div class="l-corner tl"></div>
+    <div class="l-corner tr"></div>
+    <div class="l-corner bl"></div>
+    <div class="l-corner br"></div>
+
+    <!-- Floating dots -->
+    <div class="dot-float" style="left:22%;top:72%;width:3px;height:3px;-webkit-animation-duration:6.5s;animation-duration:6.5s;-webkit-animation-delay:0s;animation-delay:0s;"></div>
+    <div class="dot-float" style="left:58%;top:80%;width:4px;height:4px;-webkit-animation-duration:8s;animation-duration:8s;-webkit-animation-delay:1.8s;animation-delay:1.8s;"></div>
+    <div class="dot-float" style="left:76%;top:67%;width:2px;height:2px;-webkit-animation-duration:5.5s;animation-duration:5.5s;-webkit-animation-delay:3.2s;animation-delay:3.2s;"></div>
+    <div class="dot-float" style="left:38%;top:84%;width:3px;height:3px;-webkit-animation-duration:7.2s;animation-duration:7.2s;-webkit-animation-delay:.9s;animation-delay:.9s;opacity:.2;"></div>
+    <div class="dot-float" style="left:86%;top:76%;width:2px;height:2px;-webkit-animation-duration:9s;animation-duration:9s;-webkit-animation-delay:2.4s;animation-delay:2.4s;"></div>
+
+    <div class="l-inner">
+      <div class="brand-emblem">&#127807;</div>
+
+      <h1 class="l-brand-name">Plant<em>Palace</em></h1>
+      <p class="l-tagline">Administration Portal</p>
+
+      <div class="l-features">
+        <div class="l-feat">
+          <div class="l-feat-icon"><i class="bi bi-shield-check" style="color:var(--gold);font-size:.9rem;"></i></div>
+          <div class="l-feat-label">Secure</div>
+        </div>
+        <div class="l-divider"></div>
+        <div class="l-feat">
+          <div class="l-feat-icon"><i class="bi bi-lightning-charge" style="color:var(--gold);font-size:.9rem;"></i></div>
+          <div class="l-feat-label">Fast</div>
+        </div>
+        <div class="l-divider"></div>
+        <div class="l-feat">
+          <div class="l-feat-icon"><i class="bi bi-person-lock" style="color:var(--gold);font-size:.9rem;"></i></div>
+          <div class="l-feat-label">Staff Only</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- end left panel -->
+
+  <!-- ════ Right login panel ════ -->
+  <div class="r-panel">
+    <div class="login-box">
+
+      <!-- Status indicator -->
+      <div class="status-row">
+        <div class="status-dot"></div>
+        <span class="status-text">Secure Admin Access</span>
+      </div>
+
+      <h2 class="login-title">Welcome back</h2>
+      <p class="login-sub">Sign in to manage your Plant Palace store and operations.</p>
+
+      <div class="rule-divider">
+        <span class="rule-text">Credentials</span>
+      </div>
+
+      <!-- Error messages -->
+      {% if form.errors %}
+      <div class="msg-box msg-error">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <span>
+          {% if form.non_field_errors %}
+            {{ form.non_field_errors.0 }}
+          {% else %}
+            Invalid username or password. Please try again.
+          {% endif %}
+        </span>
+      </div>
+      {% endif %}
+
+      {% if user.is_authenticated %}
+      <div class="msg-box msg-info">
+        <i class="bi bi-info-circle-fill"></i>
+        <span>Authenticated as <strong>{{ user.username }}</strong> but not authorised for this area.</span>
+      </div>
+      {% endif %}
+
+      <!-- Login form -->
+      <form method="post" action="{{ app_path }}" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}"/>
+
+        <!-- Username -->
+        <div class="f-row">
+          <div class="f-label">
+            <i class="bi bi-person-fill"></i>
+            Username
+          </div>
+          <div class="f-wrap">
+            <i class="bi bi-person f-icon"></i>
+            <input
+              class="f-input"
+              type="text"
+              id="id_username"
+              name="username"
+              value="{{ form.username.value|default:'' }}"
+              placeholder="Enter your username"
+              autofocus
+              autocomplete="username"
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="f-row">
+          <div class="f-label">
+            <i class="bi bi-lock-fill"></i>
+            Password
+          </div>
+          <div class="f-wrap">
+            <i class="bi bi-lock f-icon"></i>
+            <input
+              class="f-input"
+              type="password"
+              id="id_password"
+              name="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            />
+            <button type="button" class="pwd-toggle" id="togglePwd" aria-label="Show/hide password">
+              <i class="bi bi-eye" id="toggleIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-signin">
+          <i class="bi bi-box-arrow-in-right"></i>
+          Sign in to Dashboard
+        </button>
+      </form>
+
+      <div class="bottom-row">
+        <a href="/" class="back-link">
+          <i class="bi bi-arrow-left"></i>Back to Plant Palace Store
+        </a>
+        <div class="security-badge">
+          <i class="bi bi-shield-fill-check"></i>
+          Encrypted connection &nbsp;&middot;&nbsp; Authorised personnel only
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- end right panel -->
+
+</div>
+
+<script>
+(function() {
+  var btn = document.getElementById('togglePwd');
+  var field = document.getElementById('id_password');
+  var icon = document.getElementById('toggleIcon');
+  if (btn && field && icon) {
+    btn.addEventListener('click', function() {
+      if (field.type === 'password') {
+        field.type = 'text';
+        icon.className = 'bi bi-eye-slash';
+      } else {
+        field.type = 'password';
+        icon.className = 'bi bi-eye';
+      }
+    });
+  }
+
+  /* IE11 focus-within polyfill for .f-wrap */
+  var wraps = document.querySelectorAll('.f-wrap');
+  for (var i = 0; i < wraps.length; i++) {
+    (function(wrap) {
+      var inputs = wrap.querySelectorAll('input');
+      for (var j = 0; j < inputs.length; j++) {
+        inputs[j].addEventListener('focus', function() { wrap.setAttribute('data-focus','1'); });
+        inputs[j].addEventListener('blur', function() { wrap.removeAttribute('data-focus'); });
+      }
+    })(wraps[i]);
+  }
+})();
+</script>
+</body>
+</html>

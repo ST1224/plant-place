@@ -1,0 +1,122 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Products{% endblock %}
+{% block page_title %}Products Catalogue{% endblock %}
+{% block breadcrumb %}<span>Products</span>{% endblock %}
+
+{% block content %}
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+  <form method="get" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;width:100%;">
+    <div style="position:relative;flex:1;min-width:180px;max-width:260px;">
+      <i class="bi bi-search" style="position:absolute;left:.9rem;top:50%;transform:translateY(-50%);color:var(--text-3);font-size:.85rem;pointer-events:none;"></i>
+      <input type="text" name="q" value="{{ search_q }}" placeholder="Search products…"
+        class="pp-input" style="padding-left:2.2rem;width:100%;"/>
+    </div>
+    <select name="category" class="pp-select" onchange="this.form.submit()" style="min-width:180px;">
+      <option value="">All Categories</option>
+      {% for cat in categories %}
+      <option value="{{ cat.slug }}" {% if cat_filter == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn-gold"><i class="bi bi-funnel-fill"></i> Filter</button>
+    {% if cat_filter or search_q %}
+    <a href="{% url 'dashboard_products' %}" class="btn-ghost"><i class="bi bi-x-lg"></i> Clear</a>
+    {% endif %}
+    <span style="margin-left:auto;color:var(--text-3);font-size:.82rem;">
+      {{ page_obj.paginator.count }} product{{ page_obj.paginator.count|pluralize }}
+    </span>
+    <a href="/admin/shop/product/add/" class="btn-gold">
+      <i class="bi bi-plus-lg"></i> Add Product
+    </a>
+  </form>
+</div>
+
+<div class="pp-card">
+  <div style="overflow-x:auto;">
+    <table class="pp-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Category</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in page_obj %}
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:.85rem;">
+              {% if product.image %}
+              <img src="/media/{{ product.image }}" alt="{{ product.product_name }}" class="prod-thumb"/>
+              {% else %}
+              <div class="prod-thumb-ph">🌱</div>
+              {% endif %}
+              <div>
+                <div style="font-weight:600;font-size:.875rem;color:var(--text-1);">{{ product.product_name }}</div>
+                <div style="font-size:.75rem;color:var(--text-3);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                  {{ product.description|truncatechars:50 }}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td><span style="font-size:.82rem;color:var(--text-2);">{{ product.category.name|default:"—" }}</span></td>
+          <td>
+            <span style="font-weight:700;color:var(--text-1);">₹{{ product.effective_price }}</span>
+            {% if product.discount_price %}
+            <div style="font-size:.74rem;color:var(--text-3);text-decoration:line-through;">₹{{ product.price }}</div>
+            {% endif %}
+          </td>
+          <td>
+            <span class="badge-pp {% if product.stock == 0 %}b-cancelled{% elif product.stock < 5 %}b-low{% else %}b-delivered{% endif %}">
+              {{ product.stock }} left
+            </span>
+          </td>
+          <td>
+            <span class="badge-pp {% if product.is_active %}b-active{% else %}b-inactive{% endif %}">
+              {% if product.is_active %}Active{% else %}Inactive{% endif %}
+            </span>
+          </td>
+          <td>
+            <a href="/admin/shop/product/{{ product.id }}/change/" class="act-btn act-view">
+              <i class="bi bi-pencil-square"></i> Edit
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" style="text-align:center;padding:3rem;color:var(--text-3);">
+          <i class="bi bi-flower1" style="font-size:2rem;display:block;margin-bottom:.75rem;opacity:.4;"></i>
+          <span style="font-size:.9rem;">No products found.</span>
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if page_obj.has_other_pages %}
+  <div class="pp-pagination">
+    {% if page_obj.has_previous %}
+    <a class="pp-page" href="?page={{ page_obj.previous_page_number }}&q={{ search_q }}&category={{ cat_filter }}">
+      <i class="bi bi-chevron-left"></i>
+    </a>
+    {% endif %}
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+      <span class="pp-page active">{{ num }}</span>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+      <a class="pp-page" href="?page={{ num }}&q={{ search_q }}&category={{ cat_filter }}">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+    <a class="pp-page" href="?page={{ page_obj.next_page_number }}&q={{ search_q }}&category={{ cat_filter }}">
+      <i class="bi bi-chevron-right"></i>
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

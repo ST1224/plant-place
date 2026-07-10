@@ -1,0 +1,232 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Order #{{ order.id }}{% endblock %}
+{% block page_title %}Order #{{ order.id }}{% endblock %}
+{% block breadcrumb %}
+  <a href="{% url 'dashboard_orders' %}">Orders</a>
+  <span class="sep">/</span>
+  <span>#{{ order.id }}</span>
+{% endblock %}
+
+{% block content %}
+
+<!-- Order Header Strip -->
+<div class="pp-card" style="margin-bottom:1.5rem;">
+  <div style="padding:1.5rem 1.75rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <div style="display:flex;align-items:center;gap:.85rem;">
+        <span style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--gold);">
+          Order #{{ order.id }}
+        </span>
+        <span class="badge-pp b-{{ order.status }}" style="font-size:.82rem;padding:.35rem 1rem;">{{ order.get_status_display }}</span>
+      </div>
+      <div style="font-size:.82rem;color:var(--text-3);margin-top:.35rem;">
+        <i class="bi bi-calendar3" style="margin-right:.35rem;"></i>{{ order.created_at|date:"d M Y at h:i A" }}
+      </div>
+    </div>
+    <a href="{% url 'dashboard_orders' %}" class="btn-ghost">
+      <i class="bi bi-arrow-left"></i> Back to Orders
+    </a>
+  </div>
+
+  <!-- Status Flow -->
+  <div style="padding:1.25rem 1.75rem;border-top:1px solid var(--border);">
+    <div class="step-flow">
+      {% with s=order.status %}
+      <div class="step-node">
+        <div class="step-circle {% if s == 'pending' or s == 'shipped' or s == 'delivered' %}done{% else %}idle{% endif %}">
+          <i class="bi bi-check-lg"></i>
+        </div>
+        <span class="step-label" style="color:{% if s == 'pending' %}var(--gold){% elif s == 'cancelled' %}var(--text-3){% else %}#7ee787{% endif %};">
+          Order Placed
+        </span>
+      </div>
+      <div class="step-line {% if s == 'shipped' or s == 'delivered' %}done{% endif %}"></div>
+      <div class="step-node">
+        <div class="step-circle {% if s == 'shipped' or s == 'delivered' %}done{% elif s == 'pending' %}active{% else %}idle{% endif %}" style="{% if s == 'shipped' or s == 'delivered' %}background:#388bfd;border-color:#388bfd;{% endif %}">
+          <i class="bi bi-truck"></i>
+        </div>
+        <span class="step-label" style="color:{% if s == 'shipped' %}#79c0ff{% elif s == 'delivered' %}#7ee787{% else %}var(--text-3){% endif %};">
+          Shipped
+        </span>
+      </div>
+      <div class="step-line {% if s == 'delivered' %}done{% endif %}"></div>
+      <div class="step-node">
+        <div class="step-circle {% if s == 'delivered' %}done{% else %}idle{% endif %}">
+          <i class="bi bi-check2-all"></i>
+        </div>
+        <span class="step-label" style="color:{% if s == 'delivered' %}#7ee787{% else %}var(--text-3){% endif %};">
+          Delivered
+        </span>
+      </div>
+      {% endwith %}
+    </div>
+  </div>
+</div>
+
+<!-- Actions -->
+{% if order.status == 'pending' or order.status == 'shipped' %}
+<div class="pp-card" style="margin-bottom:1.5rem;">
+  <div class="pp-card-header">
+    <div class="pp-card-title"><i class="bi bi-gear-fill"></i> Order Actions</div>
+  </div>
+  <div style="padding:1.25rem 1.5rem;display:flex;gap:.85rem;flex-wrap:wrap;">
+    {% if order.status == 'pending' %}
+    <form method="post" action="{% url 'dashboard_order_action' order.id %}">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="confirm_shipping">
+      <button type="submit" class="btn-gold" style="padding:.6rem 1.5rem;">
+        <i class="bi bi-truck"></i> Confirm & Ship Order
+      </button>
+    </form>
+    {% endif %}
+    {% if order.status == 'shipped' %}
+    <form method="post" action="{% url 'dashboard_order_action' order.id %}">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="confirm_delivery">
+      <button type="submit" class="act-btn act-deliver" style="padding:.6rem 1.5rem;font-size:.875rem;">
+        <i class="bi bi-check-circle-fill"></i> Confirm Delivery
+      </button>
+    </form>
+    {% endif %}
+    <form method="post" action="{% url 'dashboard_order_action' order.id %}"
+      onsubmit="return confirm('Are you sure you want to cancel Order #{{ order.id }}?')">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="cancel">
+      <button type="submit" class="btn-danger-outline" style="padding:.6rem 1.5rem;">
+        <i class="bi bi-x-circle"></i> Cancel Order
+      </button>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<!-- Main content -->
+<div style="display:grid;grid-template-columns:1fr 340px;gap:1.5rem;" class="detail-grid">
+
+  <!-- Left -->
+  <div>
+
+    <!-- Items -->
+    <div class="pp-card" style="margin-bottom:1.5rem;">
+      <div class="pp-card-header">
+        <div class="pp-card-title"><i class="bi bi-box-seam-fill"></i> Items Ordered</div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="pp-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Unit Price</th>
+              <th>Qty</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in order_items %}
+            <tr>
+              <td><span style="font-weight:500;">{{ item.product_name }}</span></td>
+              <td style="color:var(--text-2);">₹{{ item.price }}</td>
+              <td style="color:var(--text-2);">× {{ item.quantity }}</td>
+              <td><span style="font-weight:700;color:var(--gold);">₹{{ item.subtotal }}</span></td>
+            </tr>
+            {% endfor %}
+            <tr>
+              <td colspan="3" style="text-align:right;font-weight:700;font-size:.9rem;border-top:1px solid var(--border);">
+                <span style="color:var(--text-2);">Order Total</span>
+              </td>
+              <td style="border-top:1px solid var(--border);">
+                <span style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--gold);">
+                  ₹{{ order.total_amount }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Shipping Address -->
+    <div class="pp-card">
+      <div class="pp-card-header">
+        <div class="pp-card-title"><i class="bi bi-geo-alt-fill"></i> Shipping Address</div>
+      </div>
+      <div style="padding:1.4rem 1.5rem;">
+        <div style="font-weight:600;font-size:.95rem;margin-bottom:.85rem;color:var(--text-1);">{{ order.full_name }}</div>
+        <div class="detail-row">
+          <span class="detail-label"><i class="bi bi-house" style="margin-right:.4rem;"></i>Address</span>
+          <span class="detail-val" style="text-align:right;max-width:65%;">{{ order.full_address }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><i class="bi bi-telephone" style="margin-right:.4rem;"></i>Phone</span>
+          <span class="detail-val">{{ order.phone }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label"><i class="bi bi-envelope" style="margin-right:.4rem;"></i>Email</span>
+          <span class="detail-val">{{ order.email }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right -->
+  <div>
+
+    <!-- Payment -->
+    <div class="pp-card" style="margin-bottom:1.25rem;">
+      <div class="pp-card-header">
+        <div class="pp-card-title"><i class="bi bi-credit-card-2-front-fill"></i> Payment</div>
+      </div>
+      <div style="padding:1.25rem 1.5rem;">
+        <div class="detail-row">
+          <span class="detail-label">Method</span>
+          <span class="detail-val">{{ order.get_payment_method_display }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="badge-pp b-{{ order.status }}">{{ order.get_status_display }}</span>
+        </div>
+        {% if order.payment_transaction_id %}
+        <div class="detail-row">
+          <span class="detail-label">Transaction</span>
+          <span class="detail-val" style="font-size:.78rem;color:var(--gold);font-family:monospace;">{{ order.payment_transaction_id }}</span>
+        </div>
+        {% endif %}
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-weight:600;color:var(--text-2);">Total Amount</span>
+          <span style="font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;color:var(--gold);">₹{{ order.total_amount }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="pp-card">
+      <div class="pp-card-header">
+        <div class="pp-card-title"><i class="bi bi-clock-history"></i> Order Timeline</div>
+      </div>
+      <div style="padding:1.25rem 1.5rem;">
+        <div class="pp-timeline">
+          {% for update in updates %}
+          <div class="tl-node">
+            <div class="tl-dot"></div>
+            <div class="tl-msg">{{ update.message }}</div>
+            <div class="tl-time">{{ update.timestamp|date:"d M Y, h:i A" }}</div>
+          </div>
+          {% empty %}
+          <p style="color:var(--text-3);font-size:.85rem;">No updates yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+@media (max-width: 960px) {
+  .detail-grid { grid-template-columns: 1fr !important; }
+}
+</style>
+{% endblock %}

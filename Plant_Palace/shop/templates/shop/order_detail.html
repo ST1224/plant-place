@@ -1,0 +1,162 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% block title %}Order #{{ order.id }} — Plant Palace{% endblock %}
+
+{% block content %}
+<div class="pp-breadcrumb">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'order_list' %}">My Orders</a></li>
+        <li class="breadcrumb-item active">Order #{{ order.id }}</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row g-4">
+    <!-- Left -->
+    <div class="col-lg-8">
+      <div class="checkout-card mb-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+          <div>
+            <h4 style="font-family:var(--font-display);color:var(--pp-forest);font-weight:700;margin-bottom:.35rem;">Order #{{ order.id }}</h4>
+            <p class="mb-0" style="color:var(--pp-mid);font-size:.875rem;">Placed on {{ order.created_at|date:"d M Y \a\t h:i A" }}</p>
+          </div>
+          <span class="badge-{{ order.status }}" style="font-size:.85rem;padding:.4rem 1rem;">{{ order.get_status_display }}</span>
+        </div>
+
+        {% if order.status != 'cancelled' and order.status != 'failed' %}
+        <div class="mt-4 pt-3" style="border-top:1px solid rgba(46,107,69,.08);">
+          <div class="d-flex align-items-center justify-content-between gap-1">
+            {% with s=order.status %}
+            <div class="text-center flex-fill">
+              <div class="mx-auto mb-2 d-flex align-items-center justify-content-center rounded-circle"
+                style="width:36px;height:36px;font-size:.85rem;
+                background:{% if s == 'pending' or s == 'shipped' or s == 'delivered' %}var(--pp-green){% else %}#e5e7eb{% endif %};
+                color:{% if s == 'pending' or s == 'shipped' or s == 'delivered' %}#fff{% else %}#9ca3af{% endif %};">
+                <i class="bi bi-check-lg"></i>
+              </div>
+              <div style="font-size:.72rem;font-weight:{% if s == 'pending' %}700{% else %}400{% endif %};color:{% if s == 'pending' %}var(--pp-green){% else %}var(--pp-mid){% endif %};">Placed</div>
+            </div>
+            <div style="flex:1;height:2px;background:{% if s == 'shipped' or s == 'delivered' %}var(--pp-green){% else %}#e5e7eb{% endif %};"></div>
+            <div class="text-center flex-fill">
+              <div class="mx-auto mb-2 d-flex align-items-center justify-content-center rounded-circle"
+                style="width:36px;height:36px;font-size:.85rem;
+                background:{% if s == 'shipped' or s == 'delivered' %}#3b82f6{% else %}#e5e7eb{% endif %};
+                color:{% if s == 'shipped' or s == 'delivered' %}#fff{% else %}#9ca3af{% endif %};">
+                <i class="bi bi-truck"></i>
+              </div>
+              <div style="font-size:.72rem;font-weight:{% if s == 'shipped' %}700{% else %}400{% endif %};color:{% if s == 'shipped' %}#3b82f6{% else %}var(--pp-mid){% endif %};">Shipped</div>
+            </div>
+            <div style="flex:1;height:2px;background:{% if s == 'delivered' %}var(--pp-green){% else %}#e5e7eb{% endif %};"></div>
+            <div class="text-center flex-fill">
+              <div class="mx-auto mb-2 d-flex align-items-center justify-content-center rounded-circle"
+                style="width:36px;height:36px;font-size:.85rem;
+                background:{% if s == 'delivered' %}var(--pp-green){% else %}#e5e7eb{% endif %};
+                color:{% if s == 'delivered' %}#fff{% else %}#9ca3af{% endif %};">
+                <i class="bi bi-check2-all"></i>
+              </div>
+              <div style="font-size:.72rem;font-weight:{% if s == 'delivered' %}700{% else %}400{% endif %};color:{% if s == 'delivered' %}var(--pp-green){% else %}var(--pp-mid){% endif %};">Delivered</div>
+            </div>
+            {% endwith %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Items -->
+      <div class="checkout-card mb-4">
+        <h6 class="fw-bold mb-3" style="color:var(--pp-forest);"><i class="bi bi-box-seam me-2" style="color:var(--pp-green);"></i>Items Ordered</h6>
+        {% for item in order_items %}
+        <div class="d-flex align-items-center justify-content-between py-2" style="border-bottom:1px solid rgba(46,107,69,.07);">
+          <div>
+            <p class="mb-0 fw-semibold" style="font-size:.9rem;">{{ item.product_name }}</p>
+            <small style="color:var(--pp-mid);">₹{{ item.price }} × {{ item.quantity }}</small>
+          </div>
+          <strong style="font-family:var(--font-display);color:var(--pp-forest);">₹{{ item.subtotal }}</strong>
+        </div>
+        {% endfor %}
+        <div class="d-flex justify-content-between mt-3 pt-2" style="border-top:2px solid rgba(46,107,69,.1);">
+          <span class="fw-bold" style="font-size:1.05rem;">Total</span>
+          <span style="font-family:var(--font-display);font-size:1.35rem;font-weight:700;color:var(--pp-forest);">₹{{ order.total_amount }}</span>
+        </div>
+      </div>
+
+      <!-- Shipping -->
+      <div class="checkout-card">
+        <h6 class="fw-bold mb-3" style="color:var(--pp-forest);"><i class="bi bi-geo-alt me-2" style="color:var(--pp-green);"></i>Shipping Address</h6>
+        <p class="mb-1 fw-semibold">{{ order.full_name }}</p>
+        <p class="mb-1" style="color:var(--pp-mid);font-size:.9rem;">{{ order.full_address }}</p>
+        <p class="mb-1" style="color:var(--pp-mid);font-size:.9rem;"><i class="bi bi-telephone me-1"></i>{{ order.phone }}</p>
+        <p class="mb-0" style="color:var(--pp-mid);font-size:.9rem;"><i class="bi bi-envelope me-1"></i>{{ order.email }}</p>
+      </div>
+    </div>
+
+    <!-- Right -->
+    <div class="col-lg-4">
+      <div class="order-summary-card mb-4">
+        <h6 class="fw-bold mb-3" style="font-family:var(--font-display);font-size:1.1rem;color:#fff;"><i class="bi bi-receipt me-2" style="color:var(--pp-mint);"></i>Order Info</h6>
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Payment</span>
+          <strong style="color:#fff;">{{ order.get_payment_method_display }}</strong>
+        </div>
+        {% if order.payment_transaction_id %}
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Transaction ID</span>
+          <small style="color:var(--pp-mint);">{{ order.payment_transaction_id }}</small>
+        </div>
+        {% endif %}
+        <div class="d-flex justify-content-between">
+          <span class="text-muted">Amount</span>
+          <strong style="color:var(--pp-mint);font-family:var(--font-display);font-size:1.2rem;">₹{{ order.total_amount }}</strong>
+        </div>
+
+        {% if order.status == 'pending' and order.payment_method == 'online' %}
+        <div style="border-top:1px solid rgba(255,255,255,.15);margin:1rem 0;padding-top:1rem;">
+          <a href="{% url 'payment_initiate' order.id %}" class="btn w-100" style="background:#fff;color:var(--pp-forest);border-radius:var(--radius-sm);">
+            <i class="bi bi-credit-card me-2"></i>Retry Payment
+          </a>
+        </div>
+        {% endif %}
+
+        {% if can_cancel %}
+        <div style="border-top:1px solid rgba(255,255,255,.15);margin:1rem 0;padding-top:1rem;">
+          <form method="post" action="{% url 'order_cancel' order.id %}"
+                onsubmit="return confirm('Are you sure you want to cancel Order #{{ order.id }}?')">
+            {% csrf_token %}
+            <button type="submit" class="btn w-100" style="border:1.5px solid rgba(255,255,255,.3);color:rgba(255,255,255,.8);border-radius:var(--radius-sm);">
+              <i class="bi bi-x-circle me-2"></i>Cancel Order
+            </button>
+          </form>
+          <p style="color:rgba(255,255,255,.4);font-size:.75rem;text-align:center;margin-top:.5rem;">You can cancel pending or shipped orders.</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Timeline -->
+      <div class="checkout-card">
+        <h6 class="fw-bold mb-3" style="color:var(--pp-forest);"><i class="bi bi-clock-history me-2" style="color:var(--pp-green);"></i>Order Timeline</h6>
+        <div class="timeline">
+          {% for update in updates %}
+          <div class="timeline-item">
+            <p class="mb-0 fw-medium" style="font-size:.875rem;color:var(--pp-dark);">{{ update.message }}</p>
+            <small style="color:var(--pp-mid);">{{ update.timestamp|date:"d M Y, h:i A" }}</small>
+          </div>
+          {% empty %}
+          <p style="color:var(--pp-mid);font-size:.875rem;">No updates yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <a href="{% url 'order_list' %}" class="btn" style="border:1.5px solid rgba(46,107,69,.2);color:var(--pp-sage);border-radius:50px;font-size:.875rem;">
+      <i class="bi bi-arrow-left me-1"></i>Back to Orders
+    </a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+# Plant Palace — Nursery Management System
+# Requirements
+
+# Core
+Django>=4.2,<5.0
+Pillow>=10.0.0
+
+# Dev/Testing utilities (optional)
+django-debug-toolbar>=4.0.0
+
+# Production (uncomment when deploying)
+# gunicorn>=21.0.0
+# whitenoise>=6.5.0
+# psycopg2-binary>=2.9.0   # For PostgreSQL
+# python-dotenv>=1.0.0
+
